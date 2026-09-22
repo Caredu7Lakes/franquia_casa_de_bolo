@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   postgres:
     image: postgres:15-alpine
@@ -8,36 +6,71 @@ services:
     environment:
       POSTGRES_USER: casadobolo_user
       POSTGRES_PASSWORD: casadobolo_pass
+      # Cria os DOIS bancos na primeira subida (script abaixo).
       POSTGRES_DB: casadobolo_db
-    ports:
-      - '5432:5432'
     volumes:
       - pgdata:/var/lib/postgresql/data
+      - ./init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
+    # Não expomos 5432 para fora da VM: só a rede interna usa.
 
   redis:
     image: redis:7-alpine
     container_name: casadobolo_redis
     restart: always
-    ports:
-      - '6379:6379'
+    volumes:
+      - redisdata:/data
 
   evolution_api:
     image: evoapicloud/evolution-api:v2.3.7
     container_name: casadobolo_evolution
     restart: always
+    depends_on:
+      - postgres
+      - redis
     ports:
       - '8080:8080'
     environment:
-      - SERVER_URL=http://localhost:8080
+      - SERVER_URL=http://evolution_api:8080
       - AUTHENTICATION_TYPE=apikey
-      - AUTHENTICATION_API_KEY=minha_chave_global_secreta_123
+      - AUTHENTICATION_API_KEY=${EVOLUTION_API_KEY}
+      # Banco próprio da Evolution (usuário/senha do serviço postgres, banco 'evolution').
       - DATABASE_ENABLED=true
       - DATABASE_PROVIDER=postgresql
-      - DATABASE_CONNECTION_URI=postgresql://postgres:senha@postgres:5432/evolution
+      - DATABASE_CONNECTION_URI=postgresql://casadobolo_user:casadobolo_pass@postgres:5432/evolution
+      - CACHE_REDIS_ENABLED=true
+      - CACHE_REDIS_URI=redis://redis:6379/0
+      - CACHE_REDIS_PREFIX_KEY=evolution
       - LOG_LEVEL=ERROR
     volumes:
-      - evolution_instances:/rabbitmq/data
+      - evolution_instances:/evolution/instances
+
+  backend:
+    build: .
+    container_name: casadobolo_backend
+    restart: always
+    depends_on:
+      - postgres
+      - redis
+      - evolution_api
+    ports:
+      - '3000:3000'
+    environment:
+      # Nomes de serviço da rede docker, não localhost.
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=casadobolo_user
+      - DB_PASS=casadobolo_pass
+      - DB_NAME=casadobolo_db
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - EVOLUTION_API_URL=http://evolution_api:8080
+      - EVOLUTION_API_KEY=${EVOLUTION_API_KEY}
+      - EVOLUTION_INSTANCE_NAME=casa_do_bolo_instance
+      - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
+      - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
+      - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
 
 volumes:
   pgdata:
+  redisdata:
   evolution_instances:
