@@ -1,0 +1,31 @@
+# Dependências do Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Compilação e Build
+dist/
+build/
+*.tsbuildinfo
+
+# Variáveis de Ambiente e Segredos (NUNCA SUBIR)
+.env
+.env.production
+.env.local
+
+# Ficheiros Temporários, Logs e Envio Local de Mídias
+uploads/
+logs/
+*.log
+
+# Docker e Dados Persistentes Locais
+pgdata/
+evolution_instances/
+
+# Sistema Operacional e IDEs
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
