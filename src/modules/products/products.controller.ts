@@ -2,9 +2,12 @@ import {
   Controller,
   Post,
   Get,
+  Patch,
+  Param,
   Body,
   UseInterceptors,
   UploadedFile,
+  UseGuards,
   BadRequestException,
 } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
@@ -12,6 +15,7 @@ import { memoryStorage } from 'multer';
 import { ProductsService } from './products.service';
 import { ProductCategory } from './entities/product.entity';
 import { CloudinaryService } from './cloudinary/cloudinary.service';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 
 @Controller('products')
 export class ProductsController {
@@ -20,11 +24,17 @@ export class ProductsController {
     private readonly cloudinaryService: CloudinaryService,
   ) {}
 
+  // GET aberto: o cardápio é consumido pelo bot e não expõe dado sensível.
+  @Get()
+  async listProducts() {
+    return this.productsService.findAll();
+  }
+
+  // Criar produto com foto — protegido (só o dono, pelo dashboard).
   @Post()
+  @UseGuards(JwtAuthGuard)
   @UseInterceptors(
     FileInterceptor('file', {
-      // memoryStorage: o arquivo fica em RAM e vai direto para o Cloudinary.
-      // Não gravamos em disco (efêmero em Render/Fly/Railway).
       storage: memoryStorage(),
       fileFilter: (req, file, callback) => {
         if (!file.mimetype.match(/\/(jpg|jpeg|png|webp)$/)) {
@@ -32,7 +42,7 @@ export class ProductsController {
         }
         callback(null, true);
       },
-      limits: { fileSize: 5 * 1024 * 1024 }, // 5MB
+      limits: { fileSize: 5 * 1024 * 1024 },
     }),
   )
   async createProduct(
@@ -43,7 +53,7 @@ export class ProductsController {
       throw new BadRequestException('A foto do produto é obrigatória.');
     }
     if (!body.category || !Object.values(ProductCategory).includes(body.category)) {
-      throw new BadRequestException('Categoria inválida ou ausente (BREADS_SAVORIES ou CAKES_SWEETS).');
+      throw new BadRequestException('Categoria inválida ou ausente.');
     }
 
     const upload = await this.cloudinaryService.uploadImage(file);
@@ -51,15 +61,31 @@ export class ProductsController {
     return this.productsService.create({
       name: body.name,
       description: body.description,
-      // multipart/form-data envia tudo como string; convertemos o preço.
-      price: parseFloat(body.price),
+      price: body.price != null && body.price !== '' ? parseFloat(body.price) : undefined,
       category: body.category,
       imageUrl: upload.secure_url,
     });
   }
 
-  @Get()
-  async listProducts() {
-    return this.productsService.findAll();
+  // Editar produto existente (preço, foto, disponibilidade) — protegido.
+  // Aceita foto opcional: se vier arquivo, sobe pro Cloudinary e atualiza a URL.
+  @Patch(':id')
+  @UseGuards(JwtAuthGuard)
+  @UseInterceptors(FileInterceptor('file', { storage: memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 } }))
+  async updateProduct(
+    @Param('id') id: string,
+    @UploadedFile() file: Express.Multer.File,
+    @Body() body: { price?: string; description?: string; available?: string; category?: ProductCategory },
+  ) {
+    const data: any = {};
+    if (body.price != null && body.price !== '') data.price = parseFloat(body.price);
+    if (body.description != null) data.description = body.description;
+    if (body.available != null) data.available = body.available === 'true';
+    if (body.category) data.category = body.category;
+    if (file) {
+      const upload = await this.cloudinaryService.uploadImage(file);
+      data.imageUrl = upload.secure_url;
+    }
+    return this.productsService.update(id, data);
   }
 }

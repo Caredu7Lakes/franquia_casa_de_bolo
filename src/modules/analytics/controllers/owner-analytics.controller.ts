@@ -1,7 +1,9 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, UseGuards } from '@nestjs/common';
 import { OwnerAnalyticsService } from '../services/owner-analytics.service';
+import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 
 @Controller('analytics')
+@UseGuards(JwtAuthGuard) // Todas as rotas de analytics exigem JWT.
 export class OwnerAnalyticsController {
   constructor(private readonly analyticsService: OwnerAnalyticsService) {}
 

@@ -1,77 +1,97 @@
 # 🍰 Chatbot Casa do Bolo — Backend & Engine de Automação
 
-Repositório central do **Chatbot Casa do Bolo**: uma solução **self-hosted** de atendimento no WhatsApp para a confeitaria/padaria, sem custo por mensagem. Entrega menu interativo com fotos e preços, respostas para dúvidas frequentes e uma engine de disparos em massa com proteção anti-ban.
+Backend **self-hosted** de atendimento no WhatsApp para confeitaria/padaria, sem custo por mensagem. Entrega cardápio interativo, FAQ, disparo em massa com proteção anti-ban, CRM de clientes com integração ao iFood e um painel administrativo protegido por autenticação.
 
 ---
 
-## 🎯 Objetivos
+## 🎯 Módulos
 
-- **Zero custo por mensagem** — Evolution API (self-hosted) no lugar da API oficial da Meta.
-- **Menu visual interativo** — envio de produtos (pães, salgados, bolos, doces) com foto e preço em tempo real.
-- **Captura de leads + opt-in** — cadastro do contato com consentimento explícito para campanhas.
-- **Analytics do negócio** — log de interações para mapear opções mais acessadas e horários de pico.
-- **Dashboard-ready** — backend preparado para um front-end Next.js.
+- **Atendimento WhatsApp** — cardápio por categoria, FAQ, encaminhamento para iFood/99Food, opt-in de promoções.
+- **CRM** — cadastro de clientes, histórico de interações, hábitos de compra (ticket médio, frequência, total gasto), tags, notas e NPS.
+- **Integração iFood** — ingestão de pedidos via webhook, alimentando os hábitos de compra do CRM.
+- **Marketing** — disparo em massa de campanhas com fila e delay dinâmico (anti-ban), restrito a quem deu opt-in.
+- **Analytics** — opções de menu mais acessadas, horários de pico, base apta a promoções.
+- **Autenticação** — login JWT protegendo todos os endpoints administrativos.
 
 ---
 
 ## 🛠️ Stack
 
-| Tecnologia | Função | Por quê |
-| :--- | :--- | :--- |
-| **NestJS 11 (TypeScript)** | Framework backend | Arquitetura modular, injeção de dependências, bom casamento com TypeORM. |
-| **Evolution API v2** | Engine do WhatsApp | Consome o WhatsApp via HTTP/Webhooks, sem taxa por disparo. |
-| **PostgreSQL** | Banco relacional | Persistência de clientes, logs de métricas e cardápio. |
-| **TypeORM** | ORM | Entidades declarativas em TypeScript e migrations organizadas. |
-| **Redis + BullMQ** | Filas | Disparos em massa assíncronos com rate limiting e delay dinâmico (anti-ban). |
-| **Docker Compose** | Conteinerização | Postgres + Redis + Evolution sobem com um comando. |
-
-> **Imagem Docker da Evolution:** `evoapicloud/evolution-api` (série v2.3.x). O antigo `atendai/evolution-api` foi descontinuado.
+| Tecnologia | Função |
+| :--- | :--- |
+| **NestJS 11 (TypeScript)** | Framework backend modular |
+| **Evolution API v2** (`evoapicloud/evolution-api`) | Engine do WhatsApp, sem taxa por disparo |
+| **PostgreSQL** | Clientes, logs, cardápio, pedidos |
+| **TypeORM** | ORM (entidades declarativas) |
+| **Redis + BullMQ** | Filas de disparo assíncronas com rate limiting |
+| **Cloudinary** | Armazenamento das fotos do cardápio (URL pública) |
+| **JWT + Passport + bcrypt** | Autenticação do painel |
+| **Docker Compose** | Postgres + Redis + Evolution + backend |
 
 ---
 
 ## 📐 Decisões arquiteturais
 
-1. **Desacoplamento de módulos** — o `WhatsAppBotService` não acessa repositórios de outros módulos: consome o `ProductsService` exportado pelo `ProductsModule`. A regra do cardápio fica isolada.
-2. **Mídias em nuvem** — deploy em disco efêmero (Render, Fly.io, Railway); o banco guarda apenas a **URL pública** da imagem (Cloudinary/S3), nunca o binário.
-3. **Webhook não-bloqueante** — o controller responde `200 OK` de imediato e processa a mensagem em background (`.catch` sem `await`), evitando timeout e reenvio pela Evolution. As filas do BullMQ são usadas nos **disparos em massa e campanhas**, não no atendimento em tempo real.
-4. **Anti-ban serial** — os workers de disparo rodam **um job por vez**, com delay progressivo + jitter. Não aumentar a concorrência desses workers: envio em paralelo acelera o bloqueio do número.
-5. **Alinhamento com Evolution v2** — payloads `sendText`/`sendMedia` no formato v2 (`{ number, text }` achatado). Sem resíduo de template/formatos da API Meta.
+1. **Desacoplamento** — o bot consome `ProductsService`, não repositórios de outros módulos.
+2. **Mídias em nuvem** — o banco guarda só a URL do Cloudinary; disco da VM é efêmero.
+3. **Webhooks não-bloqueantes** — controllers respondem `200 OK` na hora e processam em background (evita reenvio de Evolution e iFood).
+4. **Anti-ban serial** — workers de disparo rodam um job por vez, com delay progressivo + jitter.
+5. **Segurança** — endpoints administrativos exigem JWT; dados sensíveis (telefone/nome) são mascarados na listagem; HTTPS via reverse proxy; criptografia em repouso pelo disco Azure.
 
 ---
 
 ## 🗄️ Modelo de dados
 
-- **`Customer`** — `id`, `phone_number` (único), `name`, `opt_in_promotions` (bool), `opt_in_updated_at`, `created_at`.
-- **`Product`** — `id`, `name`, `description`, `price`, `category` (`BREADS_SAVORIES` | `CAKES_SWEETS`), `imageUrl`, `available` (bool).
-- **`InteractionLog`** — `id`, `customer_id`, `menuOption` (ex.: `1.1`, `3_DUVIDAS`), `userMessage`, `created_at`.
+- **`Customer`** — telefone (único), nome, email, endereço, opt-in, tags, notas, NPS, e hábitos de compra (`orders_count`, `total_spent`, `average_ticket`, `last_order_at`).
+- **`Product`** — nome, descrição, preço, categoria (10 categorias), `imageUrl`, disponibilidade.
+- **`InteractionLog`** — cliente, opção de menu, mensagem, data.
+- **`Order`** — pedido do iFood (idempotente por `ifood_order_id`), itens, total, canal, data.
+
+### Categorias de produto
+`BOLOS`, `MINI_BABY`, `BITES`, `RECHEADOS`, `CASEIRO_POTE`, `GELADOS`, `CUCAS_TORTAS`, `COBERTURAS`, `ESPECIAIS`, `ACESSORIOS`.
 
 ---
 
-## 🔀 Fluxo de atendimento
+## 🔀 Fluxos
 
+**Atendimento:**
 ```
-WhatsApp ⇄ Evolution API (Docker)
-                │  webhook: messages.upsert
-                ▼
-        WhatsAppWebhookController  → 200 OK imediato
-                │  processamento em background
-                ▼
-          WhatsAppBotService
-                ├─ opt-in de promoções (sim/não)
-                ├─ roteamento de menu (1 / 1.1 / 1.2 / 2 / 3)
-                ├─ ProductsService.findAvailableByCategory → sendMedia
-                └─ InteractionLog (menuOption, userMessage)
+WhatsApp ⇄ Evolution API → webhook /webhook → WhatsAppBotService
+   → menu (1..10 categorias, P pedido, D dúvidas) → resposta
+   → InteractionLog
 ```
+
+**Pedido iFood → CRM:**
+```
+iFood (evento) → webhook /ifood/webhook → IfoodOrderService
+   → busca detalhe do pedido → grava Order → atualiza stats do Customer
+```
+
+---
+
+## 🔐 Autenticação e rotas
+
+Login: `POST /auth/login` → retorna JWT (validade 12h). Enviar `Authorization: Bearer <token>` nas rotas protegidas.
+
+| Rota | Acesso |
+| :--- | :--- |
+| `POST /auth/login` | Aberto |
+| `GET /products` | Aberto (cardápio) |
+| `POST` / `PATCH /products/:id` | **JWT** |
+| `GET /customers`, `GET /customers/:id`, `PATCH /customers/:id` | **JWT** |
+| `GET /analytics/*` | **JWT** |
+| `POST /marketing/campaign` | **JWT** |
+| `POST /webhook` (Evolution) | Aberto |
+| `POST /ifood/webhook` | Aberto |
 
 ---
 
 ## 🚀 Ambiente de desenvolvimento
 
 ### Pré-requisitos
-- **Node.js** v18+
-- **Docker** e **Docker Compose**
+- Node.js v18+ · Docker + Docker Compose
 
-### 1. Instalar dependências
+### 1. Instalar
 ```bash
 git clone https://github.com/Caredu7Lakes/franquia_casa_de_bolo
 cd franquia_casa_de_bolo
@@ -81,49 +101,58 @@ npm install
 ### 2. Variáveis de ambiente (`.env`)
 ```env
 # Banco
-DB_HOST=localhost
+DB_HOST=postgres
 DB_PORT=5432
-DB_USER=postgres
-DB_PASS=postgres
-DB_NAME=casa_do_bolo
+DB_USER=casadobolo_user
+DB_PASS=casadobolo_pass
+DB_NAME=casadobolo_db
 
 # Redis
-REDIS_HOST=localhost
+REDIS_HOST=redis
 REDIS_PORT=6379
 
 # Evolution API
-EVOLUTION_API_URL=http://localhost:8080
-EVOLUTION_API_KEY=sua_chave_global
+EVOLUTION_API_URL=http://evolution_api:8080
+EVOLUTION_API_KEY=sua_chave_forte
 EVOLUTION_INSTANCE_NAME=casa_do_bolo_instance
+
+# Cloudinary
+CLOUDINARY_CLOUD_NAME=seu_cloud
+CLOUDINARY_API_KEY=sua_key
+CLOUDINARY_API_SECRET=seu_secret
+
+# Autenticação (painel)
+ADMIN_USER=admin
+ADMIN_PASSWORD_HASH=hash_bcrypt_da_senha
+JWT_SECRET=segredo_longo_aleatorio
+
+# iFood (app de parceiro)
+IFOOD_CLIENT_ID=
+IFOOD_CLIENT_SECRET=
 ```
 
-### 3. Subir a infraestrutura
+### 3. Subir infraestrutura
 ```bash
 docker compose up -d --build
 ```
-Sobe PostgreSQL, Redis e Evolution API.
+Sobe PostgreSQL, Redis, Evolution API e backend.
 
 ### 4. Conectar a instância do WhatsApp
-Gere o QR pela Evolution e leia com o aparelho dedicado. Durante o setup, `LOG_LEVEL=INFO` ajuda a diagnosticar; em produção, volte para `ERROR`.
+Acesse `http://SEU_IP:8080/manager`, informe a `EVOLUTION_API_KEY`, gere o QR e pareie um **número dedicado** (não o pessoal).
 
-### 5. Rodar o backend
+### 5. Popular o cardápio
 ```bash
-npm run start:dev
+docker compose cp products.seed.json backend:/app/products.seed.json
+docker compose cp seed-products.js backend:/app/seed-products.js
+docker compose exec -T backend node /app/seed-products.js
 ```
 
 ---
 
-## 📊 Endpoints de Analytics
+## ⚠️ Notas de operação e segurança
 
-| Método | Rota | Descrição |
-| :--- | :--- | :--- |
-| `GET` | `/analytics/frequent-questions` | Opções de menu mais acessadas. |
-| `GET` | `/analytics/peak-hours` | Dias e horários de pico. |
-| `GET` | `/analytics/opted-in-customers` | Contatos aptos a receber promoções. |
-
----
-
-## ⚠️ Notas de operação
-
-- **Risco de ban**: a Evolution é não-oficial (Baileys). Use número dedicado, aqueça antes de disparar em massa e mantenha os delays. Ban é a premissa de risco central do projeto.
-- **Sessão**: a instância pode cair (WhatsApp atualiza, aparelho desconecta). Monitorar o evento `connection.update` é recomendado para religar/reler QR.
+- **Risco de ban (Evolution/Baileys)**: use número dedicado, aqueça antes de disparar, mantenha os delays.
+- **Sessão do WhatsApp** pode cair (atualização/desconexão): monitore `connection.update` e releia o QR.
+- **iFood**: exige app de parceiro (CNPJ), homologação, autorização da loja e **webhook HTTPS**. O código está pronto; falta o credenciamento e o TLS.
+- **HTTPS**: obrigatório antes de uso real — dados de clientes não devem trafegar em texto puro.
+- **Produção**: trocar `synchronize: true` por `false` + migrations, para não alterar/dropar colunas com dado.
