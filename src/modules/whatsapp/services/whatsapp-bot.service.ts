@@ -74,7 +74,9 @@ export class WhatsAppBotService {
         await this.logInteraction(customer, 'PEDIDOS', text);
         return this.sendText(
           from,
-          '🛍️ *Fazer Pedido*\n\nPeça pelos nossos parceiros:\n• iFood: (link)\n• 99Food: (link)',
+          '🛍️ *Fazer Pedido*\n\nPeça pelos nossos parceiros:\n\n' +
+            '🔴 *iFood:*\nhttps://www.ifood.com.br/delivery/sao-paulo-sp/casa-de-bolos-sao-lucas-parque-sao-lucas/b9189dac-ede3-4050-ba41-eb3e7954d790\n\n' +
+            '🟡 *99Food:*\n(link em breve)',
         );
       case 'duvidas':
       case 'dúvidas':

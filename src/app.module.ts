@@ -11,6 +11,8 @@ import { WhatsAppModule } from './modules/whatsapp/whatsapp.module';
 import { CustomersModule } from './modules/customers/customers.module';
 import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { MarketingModule } from './modules/marketing/marketing.module';
+import { ProductsModule } from './modules/products/products.module';
+import { IfoodModule } from './modules/ifood/ifood.module';
 
 @Module({
   imports: [
@@ -28,7 +30,6 @@ import { MarketingModule } from './modules/marketing/marketing.module';
     BullModule.forRootAsync({
       imports: [ConfigModule],
       useFactory: (configService: ConfigService) => ({
-        // BullMQ: 'connection' no lugar do antigo 'redis'.
         connection: {
           host: configService.get('redis.host'),
           port: configService.get('redis.port'),
@@ -40,6 +41,8 @@ import { MarketingModule } from './modules/marketing/marketing.module';
     CustomersModule,
     AnalyticsModule,
     MarketingModule,
+    ProductsModule,
+    IfoodModule,
   ],
 })
 export class AppModule {}
