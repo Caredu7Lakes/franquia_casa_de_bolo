@@ -1,8 +1,22 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  CreateDateColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 
 export enum ProductCategory {
-  BREADS_SAVORIES = 'BREADS_SAVORIES',
-  CAKES_SWEETS = 'CAKES_SWEETS',
+  BOLOS = 'BOLOS',
+  MINI_BABY = 'MINI_BABY',
+  BITES = 'BITES',
+  RECHEADOS = 'RECHEADOS',
+  CASEIRO_POTE = 'CASEIRO_POTE',
+  GELADOS = 'GELADOS',
+  CUCAS_TORTAS = 'CUCAS_TORTAS',
+  COBERTURAS = 'COBERTURAS',
+  ESPECIAIS = 'ESPECIAIS',
+  ACESSORIOS = 'ACESSORIOS',
 }
 
 @Entity('products')
@@ -16,10 +30,10 @@ export class Product {
   @Column({ type: 'text', nullable: true })
   description!: string;
 
-  @Column({ type: 'decimal', precision: 10, scale: 2 })
+  @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
   price!: number;
 
-  @Column({ type: 'enum', enum: ProductCategory, default: ProductCategory.CAKES_SWEETS })
+  @Column({ type: 'enum', enum: ProductCategory, default: ProductCategory.BOLOS })
   category!: ProductCategory;
 
   @Column({ nullable: true })

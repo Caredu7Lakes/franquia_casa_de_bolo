@@ -7,6 +7,20 @@ import { InteractionLog } from '../entities/interaction-log.entity';
 import { ProductsService } from '../../products/products.service';
 import { Product, ProductCategory } from '../../products/entities/product.entity';
 
+// Mapa: opção digitada -> categoria + rótulo exibido no menu.
+const CATEGORY_MENU: { key: string; category: ProductCategory; label: string }[] = [
+  { key: '1', category: ProductCategory.BOLOS, label: 'Bolos' },
+  { key: '2', category: ProductCategory.MINI_BABY, label: 'Mini e Baby' },
+  { key: '3', category: ProductCategory.BITES, label: 'Bites' },
+  { key: '4', category: ProductCategory.RECHEADOS, label: 'Bolos Recheados' },
+  { key: '5', category: ProductCategory.CASEIRO_POTE, label: 'Bolo Caseiro no Pote' },
+  { key: '6', category: ProductCategory.GELADOS, label: 'Gelados' },
+  { key: '7', category: ProductCategory.CUCAS_TORTAS, label: 'Cucas e Tortas' },
+  { key: '8', category: ProductCategory.COBERTURAS, label: 'Coberturas' },
+  { key: '9', category: ProductCategory.ESPECIAIS, label: 'Bolos Especiais' },
+  { key: '10', category: ProductCategory.ACESSORIOS, label: 'Acessórios' },
+];
+
 @Injectable()
 export class WhatsAppBotService {
   private readonly logger = new Logger(WhatsAppBotService.name);
@@ -20,26 +34,20 @@ export class WhatsAppBotService {
     private readonly productsService: ProductsService,
   ) {}
 
-  /**
-   * Ponto de entrada. Recebe o evento bruto da Evolution (messages.upsert).
-   * O payload da mensagem fica em body.data.
-   */
   async processMessage(body: any): Promise<void> {
     const message = body?.data;
     if (!message) return;
-
-    // Ignora mensagens enviadas pelo próprio bot e status/grupos.
     if (message.key?.fromMe) return;
+
     const from: string = message.key?.remoteJid || '';
     if (!from || from.endsWith('@g.us') || from === 'status@broadcast') return;
 
     const name = message.pushName || 'Cliente';
     const text = this.extractText(message);
-
     const customer = await this.findOrCreateCustomer(from, name);
-
-    // --- Opt-in de promoções ---
     const normalized = text.trim().toLowerCase();
+
+    // Opt-in de promoções.
     if (normalized === 'sim' || normalized.includes('promocao_sim')) {
       await this.saveOptIn(customer, true);
       await this.logInteraction(customer, 'OPTIN_SIM', text);
@@ -48,71 +56,44 @@ export class WhatsAppBotService {
     if (normalized === 'não' || normalized === 'nao' || normalized.includes('promocao_nao')) {
       await this.saveOptIn(customer, false);
       await this.logInteraction(customer, 'OPTIN_NAO', text);
-      return this.sendText(from, 'Tudo bem! Respeitamos sua escolha. Sempre que precisar, é só chamar! 🍰');
+      return this.sendText(from, 'Tudo bem! Sempre que precisar, é só chamar! 🍰');
     }
 
-    // --- Roteamento do menu ---
-    return this.routeMenu(from, customer, normalized, text);
-  }
+    // Menu do cardápio: opções 1..10 caem numa categoria.
+    const catItem = CATEGORY_MENU.find((c) => c.key === normalized);
+    if (catItem) {
+      await this.logInteraction(customer, `CAT_${catItem.category}`, text);
+      return this.sendProductsByCategory(from, catItem.category, catItem.label);
+    }
 
-  /**
-   * Direciona conforme a opção digitada. Esta é a lógica que antes estava
-   * "morta" em handleIncomingMessage e nunca era chamada.
-   */
-  private async routeMenu(from: string, customer: Customer, option: string, rawText: string): Promise<void> {
-    switch (option) {
-      case '1':
-      case 'cardapio':
-      case 'cardápio':
-        await this.logInteraction(customer, '1_CARDAPIO', rawText);
-        return this.sendCategoryMenu(from);
-
-      case '1.1':
-        await this.logInteraction(customer, '1.1_PAES_SALGADOS', rawText);
-        return this.sendProductsByCategory(from, ProductCategory.BREADS_SAVORIES);
-
-      case '1.2':
-        await this.logInteraction(customer, '1.2_BOLOS_DOCES', rawText);
-        return this.sendProductsByCategory(from, ProductCategory.CAKES_SWEETS);
-
-      case '2':
+    // Opções fixas.
+    switch (normalized) {
       case 'pedido':
       case 'pedidos':
-        await this.logInteraction(customer, '2_PEDIDOS', rawText);
+      case 'p':
+        await this.logInteraction(customer, 'PEDIDOS', text);
         return this.sendText(
           from,
-          '🛍️ *Fazer Pedido*\n\nPeça pelos nossos parceiros:\n\n• iFood: (link aqui)\n• 99Food: (link aqui)',
+          '🛍️ *Fazer Pedido*\n\nPeça pelos nossos parceiros:\n• iFood: (link)\n• 99Food: (link)',
         );
-
-      case '3':
       case 'duvidas':
       case 'dúvidas':
-        await this.logInteraction(customer, '3_DUVIDAS', rawText);
+      case 'd':
+        await this.logInteraction(customer, 'DUVIDAS', text);
         return this.sendFaqMenu(from);
-
       default:
-        await this.logInteraction(customer, 'MAIN_MENU', rawText);
+        await this.logInteraction(customer, 'MAIN_MENU', text);
         return this.sendMainMenu(from);
     }
   }
 
-  // ---------- Mensagens de menu ----------
-
   private async sendMainMenu(to: string): Promise<void> {
+    const linhas = CATEGORY_MENU.map((c) => `*${c.key}* — ${c.label}`).join('\n');
     const text =
-      `🍰 *Bem-vindo à Casa do Bolo!*\n\n` +
-      `Responda com o *número* da opção:\n\n` +
-      `1️⃣ Cardápio do Dia 📜\n` +
-      `2️⃣ Fazer Pedidos 🛍️\n` +
-      `3️⃣ Dúvidas e Horários ❓`;
-    await this.sendText(to, text);
-  }
-
-  private async sendCategoryMenu(to: string): Promise<void> {
-    const text =
-      `📜 *Cardápio*\n\nEscolha uma seção:\n\n` +
-      `*1.1* — Pães e Salgados 🥐\n` +
-      `*1.2* — Bolos e Doces 🎂`;
+      `🍰 *Casa do Bolo* 🍰\n\n` +
+      `Responda com o *número* da categoria do cardápio:\n\n` +
+      `${linhas}\n\n` +
+      `Ou digite:\n*P* — Fazer pedido 🛍️\n*D* — Dúvidas e horários ❓`;
     await this.sendText(to, text);
   }
 
@@ -120,51 +101,51 @@ export class WhatsAppBotService {
     const text =
       `❓ *Dúvidas Frequentes*\n\n` +
       `Horários: Ter a Dom, 8h–19h\n` +
-      `Localização e estacionamento, frete, dietas especiais, pagamentos e encomendas — responda aqui que ajudamos.`;
+      `Localização, estacionamento, frete, dietas especiais, pagamentos e encomendas — responda aqui que ajudamos.`;
     await this.sendText(to, text);
   }
 
-  private async sendProductsByCategory(to: string, category: ProductCategory): Promise<void> {
+  private async sendProductsByCategory(to: string, category: ProductCategory, label: string): Promise<void> {
     const products = await this.productsService.findAvailableByCategory(category);
-
     if (!products.length) {
-      return this.sendText(to, 'No momento não há itens disponíveis nesta seção. 🙏');
+      return this.sendText(to, `A seção *${label}* está sem itens no momento. 🙏`);
     }
-
+    await this.sendText(to, `📜 *${label}*`);
     for (const product of products) {
       await this.sendProductMedia(to, product);
     }
   }
 
-  // ---------- Chamadas à Evolution API v2 ----------
-
   private async sendText(to: string, text: string): Promise<void> {
-    const endpoint = `${this.baseUrl}/message/sendText/${this.instance}`;
-    // Formato v2: number/text/delay achatados (o aninhado textMessage é v1).
-    const payload = { number: to, text, delay: 1200 };
     try {
-      await axios.post(endpoint, payload, {
-        headers: { apikey: this.apiKey, 'Content-Type': 'application/json' },
-      });
+      await axios.post(
+        `${this.baseUrl}/message/sendText/${this.instance}`,
+        { number: to, text, delay: 1000 },
+        { headers: { apikey: this.apiKey, 'Content-Type': 'application/json' } },
+      );
     } catch (error: any) {
       this.logger.error('Erro no sendText', error.response?.data || error.message);
     }
   }
 
   private async sendProductMedia(to: string, product: Product): Promise<void> {
-    const endpoint = `${this.baseUrl}/message/sendMedia/${this.instance}`;
-    const caption = `🍰 *${product.name}*\n\n${product.description || ''}\n\n💰 *Preço:* R$ ${Number(product.price).toFixed(2)}`;
-    const payload = { number: to, mediatype: 'image', media: product.imageUrl, caption };
+    const preco = product.price != null ? `\n💰 R$ ${Number(product.price).toFixed(2)}` : '';
+    const caption = `🍰 *${product.name}*${product.description ? `\n${product.description}` : ''}${preco}`;
+
+    // Sem foto ainda: manda só o texto, para não quebrar o sendMedia com URL vazia.
+    if (!product.imageUrl) {
+      return this.sendText(to, caption);
+    }
     try {
-      await axios.post(endpoint, payload, {
-        headers: { apikey: this.apiKey, 'Content-Type': 'application/json' },
-      });
+      await axios.post(
+        `${this.baseUrl}/message/sendMedia/${this.instance}`,
+        { number: to, mediatype: 'image', media: product.imageUrl, caption },
+        { headers: { apikey: this.apiKey, 'Content-Type': 'application/json' } },
+      );
     } catch (error: any) {
       this.logger.error(`Erro no sendMedia (${product.name})`, error.response?.data || error.message);
     }
   }
-
-  // ---------- Persistência ----------
 
   private async findOrCreateCustomer(phone: string, name: string): Promise<Customer> {
     let customer = await this.customerRepo.findOne({ where: { phone_number: phone } });
@@ -182,12 +163,9 @@ export class WhatsAppBotService {
   }
 
   private async logInteraction(customer: Customer, menuOption: string, userMessage: string): Promise<void> {
-    // Campos alinhados à entidade InteractionLog: menuOption + userMessage.
     const log = this.logRepo.create({ customer, menuOption, userMessage });
     await this.logRepo.save(log);
   }
-
-  // ---------- Util ----------
 
   private extractText(message: any): string {
     return (

@@ -1,0 +1,1330 @@
+[
+  {
+    "name": "Bolo Mesclado de Cenoura com Chocolate",
+    "description": "",
+    "price": null,
+    "category": "BOLOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Cappuccino",
+    "description": "",
+    "price": null,
+    "category": "BOLOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Brownie com Pistache",
+    "description": "",
+    "price": null,
+    "category": "BOLOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Piscina de Chocolate com Leitinho e Pistache",
+    "description": "",
+    "price": null,
+    "category": "BOLOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo de Iogurte com Pistache",
+    "description": "",
+    "price": null,
+    "category": "BOLOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo de Fubá com Limão Siciliano",
+    "description": "",
+    "price": null,
+    "category": "BOLOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo de Maçã com Castanha",
+    "description": "",
+    "price": null,
+    "category": "BOLOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo de Fubá com Goiabada",
+    "description": "",
+    "price": null,
+    "category": "BOLOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo de Fubá",
+    "description": "",
+    "price": null,
+    "category": "BOLOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo de Milho",
+    "description": "",
+    "price": null,
+    "category": "BOLOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo de Iogurte",
+    "description": "",
+    "price": null,
+    "category": "BOLOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Fubá Cremoso",
+    "description": "",
+    "price": null,
+    "category": "BOLOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo de Cenoura",
+    "description": "",
+    "price": null,
+    "category": "BOLOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Formigueiro",
+    "description": "",
+    "price": null,
+    "category": "BOLOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo de Banana com Canela",
+    "description": "",
+    "price": null,
+    "category": "BOLOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo de Milho Com Requeijão",
+    "description": "",
+    "price": null,
+    "category": "BOLOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Piscina de Cenoura com Creme de Avelã",
+    "description": "",
+    "price": null,
+    "category": "BOLOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Piscina de Chocolate com Leitinho",
+    "description": "",
+    "price": null,
+    "category": "BOLOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Piscina de Milho com Curau",
+    "description": "",
+    "price": null,
+    "category": "BOLOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Piscina Romeu e Julieta",
+    "description": "",
+    "price": null,
+    "category": "BOLOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo de Cenoura com Gotas de Chocolate",
+    "description": "",
+    "price": null,
+    "category": "BOLOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo de Mandioca",
+    "description": "",
+    "price": null,
+    "category": "BOLOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo de Iogurte com Limão",
+    "description": "",
+    "price": null,
+    "category": "BOLOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Fubá com Erva-Doce",
+    "description": "",
+    "price": null,
+    "category": "BOLOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo de Chocolate",
+    "description": "",
+    "price": null,
+    "category": "BOLOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo de Coco",
+    "description": "",
+    "price": null,
+    "category": "BOLOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo de Laranja",
+    "description": "",
+    "price": null,
+    "category": "BOLOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo de Limão",
+    "description": "",
+    "price": null,
+    "category": "BOLOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo de Maracujá",
+    "description": "",
+    "price": null,
+    "category": "BOLOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Mesclado",
+    "description": "",
+    "price": null,
+    "category": "BOLOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Fofinho de Chocolate",
+    "description": "",
+    "price": null,
+    "category": "BOLOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Fofinho de Fubá com Laranja",
+    "description": "",
+    "price": null,
+    "category": "BOLOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo de Leitinho",
+    "description": "",
+    "price": null,
+    "category": "BOLOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Prestígio",
+    "description": "",
+    "price": null,
+    "category": "BOLOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Toalha Felpuda",
+    "description": "",
+    "price": null,
+    "category": "BOLOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo de Amendoim",
+    "description": "",
+    "price": null,
+    "category": "BOLOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo da Amizade",
+    "description": "",
+    "price": null,
+    "category": "BOLOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Brownie",
+    "description": "",
+    "price": null,
+    "category": "BOLOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Brownie Com Nozes",
+    "description": "",
+    "price": null,
+    "category": "BOLOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo de Ameixa",
+    "description": "",
+    "price": null,
+    "category": "BOLOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo de Trigo",
+    "description": "",
+    "price": null,
+    "category": "BOLOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo de Queijo",
+    "description": "",
+    "price": null,
+    "category": "BOLOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Crocante de Fubá com Laranja",
+    "description": "",
+    "price": null,
+    "category": "BOLOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Luiz Felipe",
+    "description": "",
+    "price": null,
+    "category": "BOLOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Queijadinha",
+    "description": "",
+    "price": null,
+    "category": "BOLOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo de Natal",
+    "description": "",
+    "price": null,
+    "category": "BOLOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Pudim",
+    "description": "",
+    "price": null,
+    "category": "BOLOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Amizade Baby",
+    "description": "",
+    "price": null,
+    "category": "MINI_BABY",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Mini Bolo de Frutas Vermelhas",
+    "description": "",
+    "price": null,
+    "category": "MINI_BABY",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Mini Bolo de Fubá",
+    "description": "",
+    "price": null,
+    "category": "MINI_BABY",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Mini Bolo de Fubá com Goiabada",
+    "description": "",
+    "price": null,
+    "category": "MINI_BABY",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Mini Bolo de Banana com Canela",
+    "description": "",
+    "price": null,
+    "category": "MINI_BABY",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Mini Bolo Fofinho de Chocolate",
+    "description": "",
+    "price": null,
+    "category": "MINI_BABY",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Mini Bolo de Iogurte",
+    "description": "",
+    "price": null,
+    "category": "MINI_BABY",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Mini Bolo de Maçã com Castanha",
+    "description": "",
+    "price": null,
+    "category": "MINI_BABY",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Mini Bolo de Milho",
+    "description": "",
+    "price": null,
+    "category": "MINI_BABY",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Amendoim Baby",
+    "description": "",
+    "price": null,
+    "category": "MINI_BABY",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo de Cenoura Baby",
+    "description": "",
+    "price": null,
+    "category": "MINI_BABY",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Chocolate Baby",
+    "description": "",
+    "price": null,
+    "category": "MINI_BABY",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Formigueiro Baby",
+    "description": "",
+    "price": null,
+    "category": "MINI_BABY",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo de Laranja Baby",
+    "description": "",
+    "price": null,
+    "category": "MINI_BABY",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo de Limão Baby",
+    "description": "",
+    "price": null,
+    "category": "MINI_BABY",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Luiz Felipe Baby",
+    "description": "",
+    "price": null,
+    "category": "MINI_BABY",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bites de Cenoura",
+    "description": "",
+    "price": null,
+    "category": "BITES",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Cobertura para Bites de Chocolate",
+    "description": "",
+    "price": null,
+    "category": "BITES",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bites de Fubá",
+    "description": "",
+    "price": null,
+    "category": "BITES",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bites de Brownie",
+    "description": "",
+    "price": null,
+    "category": "BITES",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Cobertura para Bites de Goiabada",
+    "description": "",
+    "price": null,
+    "category": "BITES",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Recheado de Frutas Vermelhas",
+    "description": "",
+    "price": null,
+    "category": "RECHEADOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Pão de Mel",
+    "description": "",
+    "price": null,
+    "category": "RECHEADOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Recheado de Leitinho com Morango – Grande",
+    "description": "",
+    "price": null,
+    "category": "RECHEADOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Recheado de Leitinho com Morango – Médio",
+    "description": "",
+    "price": null,
+    "category": "RECHEADOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Ganache de Chocolate com Beijinho",
+    "description": "",
+    "price": null,
+    "category": "RECHEADOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Ganache de Chocolate com Morango",
+    "description": "",
+    "price": null,
+    "category": "RECHEADOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Sonho",
+    "description": "",
+    "price": null,
+    "category": "RECHEADOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Recheado de Leitinho – Médio",
+    "description": "",
+    "price": null,
+    "category": "RECHEADOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Recheado de Chocolate – Médio",
+    "description": "",
+    "price": null,
+    "category": "RECHEADOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Recheado de Churros – Médio",
+    "description": "",
+    "price": null,
+    "category": "RECHEADOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Bem-Casado",
+    "description": "",
+    "price": null,
+    "category": "RECHEADOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo da Vó Sônia de Abacaxi – Médio",
+    "description": "",
+    "price": null,
+    "category": "RECHEADOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo da Vó Sônia de Morango – Médio",
+    "description": "",
+    "price": null,
+    "category": "RECHEADOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo da Vó Sônia de Nozes – Médio",
+    "description": "",
+    "price": null,
+    "category": "RECHEADOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Recheado de Chocolate – Grande",
+    "description": "",
+    "price": null,
+    "category": "RECHEADOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Recheado de Churros – Grande",
+    "description": "",
+    "price": null,
+    "category": "RECHEADOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo da Vó Sônia de Abacaxi – Grande",
+    "description": "",
+    "price": null,
+    "category": "RECHEADOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Recheado de Leitinho – Grande",
+    "description": "",
+    "price": null,
+    "category": "RECHEADOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo da Vó Sônia de Morango – Grande",
+    "description": "",
+    "price": null,
+    "category": "RECHEADOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo da Vó Sônia de Nozes – Grande",
+    "description": "",
+    "price": null,
+    "category": "RECHEADOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Caseiro no Pote de Frutas Vermelhas",
+    "description": "",
+    "price": null,
+    "category": "CASEIRO_POTE",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Caseiro no Pote de Pão de Mel",
+    "description": "",
+    "price": null,
+    "category": "CASEIRO_POTE",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Caseiro no Pote de Leitinho com Morango",
+    "description": "",
+    "price": null,
+    "category": "CASEIRO_POTE",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Caseiro no Pote Leitinho com Pistache",
+    "description": "",
+    "price": null,
+    "category": "CASEIRO_POTE",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Caseiro no Pote de Cenoura com Chocolate",
+    "description": "",
+    "price": null,
+    "category": "CASEIRO_POTE",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Caseiro no Pote de Leitinho",
+    "description": "",
+    "price": null,
+    "category": "CASEIRO_POTE",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Caseiro no Pote de Abacaxi",
+    "description": "",
+    "price": null,
+    "category": "CASEIRO_POTE",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Caseiro no Pote de Abacaxi com Ameixa",
+    "description": "",
+    "price": null,
+    "category": "CASEIRO_POTE",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Caseiro no Pote de Arroz-doce",
+    "description": "",
+    "price": null,
+    "category": "CASEIRO_POTE",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Caseiro no Pote de Banana",
+    "description": "",
+    "price": null,
+    "category": "CASEIRO_POTE",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Caseiro no Pote de Beijinho",
+    "description": "",
+    "price": null,
+    "category": "CASEIRO_POTE",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Caseiro no Pote de Banoffee",
+    "description": "",
+    "price": null,
+    "category": "CASEIRO_POTE",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Caseiro no Pote de Brigadeiro",
+    "description": "",
+    "price": null,
+    "category": "CASEIRO_POTE",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Caseiro no Pote Família de Brigadeiro",
+    "description": "",
+    "price": null,
+    "category": "CASEIRO_POTE",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Caseiro no Pote de Chocolate com Leitinho",
+    "description": "",
+    "price": null,
+    "category": "CASEIRO_POTE",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Caseiro no Pote de Churros",
+    "description": "",
+    "price": null,
+    "category": "CASEIRO_POTE",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Caseiro no Pote de Laranja",
+    "description": "",
+    "price": null,
+    "category": "CASEIRO_POTE",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Caseiro no Pote Família de Leitinho",
+    "description": "",
+    "price": null,
+    "category": "CASEIRO_POTE",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Caseiro no Pote de Limão",
+    "description": "",
+    "price": null,
+    "category": "CASEIRO_POTE",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Caseiro no Pote de Maracujá com Chocolate",
+    "description": "",
+    "price": null,
+    "category": "CASEIRO_POTE",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Caseiro no Pote Família de Maracujá com Chocolate",
+    "description": "",
+    "price": null,
+    "category": "CASEIRO_POTE",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Caseiro no Pote de Morango com Creme",
+    "description": "",
+    "price": null,
+    "category": "CASEIRO_POTE",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Caseiro no Pote Família de Morango com Creme",
+    "description": "",
+    "price": null,
+    "category": "CASEIRO_POTE",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Caseiro no Pote de Nozes com Doce de Leite",
+    "description": "",
+    "price": null,
+    "category": "CASEIRO_POTE",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Caseiro no Pote de Prestígio",
+    "description": "",
+    "price": null,
+    "category": "CASEIRO_POTE",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Caseiro no Pote de Tapioca",
+    "description": "",
+    "price": null,
+    "category": "CASEIRO_POTE",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Caseiro no Pote Romeu e Julieta",
+    "description": "",
+    "price": null,
+    "category": "CASEIRO_POTE",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Manjar",
+    "description": "",
+    "price": null,
+    "category": "GELADOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Brigadeirão",
+    "description": "",
+    "price": null,
+    "category": "GELADOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Tapioca Gelado",
+    "description": "",
+    "price": null,
+    "category": "GELADOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Pudim",
+    "description": "",
+    "price": null,
+    "category": "GELADOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Cuca de Goiabada Baby",
+    "description": "",
+    "price": null,
+    "category": "CUCAS_TORTAS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Cuca de Banana Baby",
+    "description": "",
+    "price": null,
+    "category": "CUCAS_TORTAS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Cuca de Maçã e Nozes",
+    "description": "",
+    "price": null,
+    "category": "CUCAS_TORTAS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Cuca de Banana",
+    "description": "",
+    "price": null,
+    "category": "CUCAS_TORTAS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Cuca de Goiabada",
+    "description": "",
+    "price": null,
+    "category": "CUCAS_TORTAS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Cuca de Chocolate",
+    "description": "",
+    "price": null,
+    "category": "CUCAS_TORTAS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Cuca de Doce de Leite e Abacaxi",
+    "description": "",
+    "price": null,
+    "category": "CUCAS_TORTAS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Torta Banoffee",
+    "description": "",
+    "price": null,
+    "category": "CUCAS_TORTAS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Torta de Abacaxi",
+    "description": "",
+    "price": null,
+    "category": "CUCAS_TORTAS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Torta de Banana",
+    "description": "",
+    "price": null,
+    "category": "CUCAS_TORTAS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Cobertura para Viagem de Leitinho com Pistache",
+    "description": "",
+    "price": null,
+    "category": "COBERTURAS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Cobertura de Leitinho com Pistache",
+    "description": "",
+    "price": null,
+    "category": "COBERTURAS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Cobertura Casquinha Limão Siciliano",
+    "description": "",
+    "price": null,
+    "category": "COBERTURAS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Cobertura Bolos Baby Casquinha Limão Siciliano",
+    "description": "",
+    "price": null,
+    "category": "COBERTURAS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Cobertura Casquinha Laranja",
+    "description": "",
+    "price": null,
+    "category": "COBERTURAS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Cobertura Bolos Baby Casquinha Laranja",
+    "description": "",
+    "price": null,
+    "category": "COBERTURAS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Cobertura para Viagem de Chocolate",
+    "description": "",
+    "price": null,
+    "category": "COBERTURAS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Cobertura para Viagem de Chocolate Especial",
+    "description": "",
+    "price": null,
+    "category": "COBERTURAS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Cobertura para Viagem de Creme de Avelã",
+    "description": "",
+    "price": null,
+    "category": "COBERTURAS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Cobertura para Viagem de Doce de Leite",
+    "description": "",
+    "price": null,
+    "category": "COBERTURAS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Cobertura para Viagem de Goiabada",
+    "description": "",
+    "price": null,
+    "category": "COBERTURAS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Cobertura para Viagem de Leitinho",
+    "description": "",
+    "price": null,
+    "category": "COBERTURAS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Cobertura para Viagem de Limão",
+    "description": "",
+    "price": null,
+    "category": "COBERTURAS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Cobertura para Viagem de Maracujá",
+    "description": "",
+    "price": null,
+    "category": "COBERTURAS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Cobertura para Viagem Vó Sônia",
+    "description": "",
+    "price": null,
+    "category": "COBERTURAS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Cobertura Bolos Baby Chocolate",
+    "description": "",
+    "price": null,
+    "category": "COBERTURAS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Cobertura Bolos Baby Limão",
+    "description": "",
+    "price": null,
+    "category": "COBERTURAS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Cobertura Chocolate Especial",
+    "description": "",
+    "price": null,
+    "category": "COBERTURAS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Cobertura da Vó Sônia",
+    "description": "",
+    "price": null,
+    "category": "COBERTURAS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Cobertura de Chocolate",
+    "description": "",
+    "price": null,
+    "category": "COBERTURAS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Cobertura de Creme de Avelã",
+    "description": "",
+    "price": null,
+    "category": "COBERTURAS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Cobertura de Doce de Leite",
+    "description": "",
+    "price": null,
+    "category": "COBERTURAS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Cobertura de Goiabada",
+    "description": "",
+    "price": null,
+    "category": "COBERTURAS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Cobertura de Leitinho",
+    "description": "",
+    "price": null,
+    "category": "COBERTURAS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Cobertura de Limão",
+    "description": "",
+    "price": null,
+    "category": "COBERTURAS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Cobertura de Maracujá",
+    "description": "",
+    "price": null,
+    "category": "COBERTURAS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo de Banana e Aveia",
+    "description": "",
+    "price": null,
+    "category": "ESPECIAIS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Diet de Laranja",
+    "description": "",
+    "price": null,
+    "category": "ESPECIAIS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Diet de Maçã",
+    "description": "",
+    "price": null,
+    "category": "ESPECIAIS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Bolo Funcional de Cenoura",
+    "description": "",
+    "price": null,
+    "category": "ESPECIAIS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Água",
+    "description": "",
+    "price": null,
+    "category": "ACESSORIOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "BoloBag Retornável",
+    "description": "",
+    "price": null,
+    "category": "ACESSORIOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Embalagem Presente",
+    "description": "",
+    "price": null,
+    "category": "ACESSORIOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Embalagem Presente Nova",
+    "description": "",
+    "price": null,
+    "category": "ACESSORIOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Vela Estrela de Ouro",
+    "description": "",
+    "price": null,
+    "category": "ACESSORIOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Vela Fonte Luminosa",
+    "description": "",
+    "price": null,
+    "category": "ACESSORIOS",
+    "imageUrl": "",
+    "available": true
+  },
+  {
+    "name": "Vela Palitinho",
+    "description": "",
+    "price": null,
+    "category": "ACESSORIOS",
+    "imageUrl": "",
+    "available": true
+  }
+]
