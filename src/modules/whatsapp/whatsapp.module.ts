@@ -5,13 +5,13 @@ import { WhatsAppBotService } from './services/whatsapp-bot.service';
 import { InteractionLog } from './entities/interaction-log.entity';
 import { Customer } from '../customers/entities/customer.entity';
 import { ProductsModule } from '../products/products.module';
+import { TenancyModule } from '../tenancy/tenancy.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([InteractionLog, Customer]),
-    // Consome ProductsService via módulo, respeitando a fronteira — não
-    // injetamos o ProductRepository de outro módulo diretamente.
     ProductsModule,
+    TenancyModule, // fornece o TenantResolverService ao webhook.
   ],
   controllers: [WhatsAppWebhookController],
   providers: [WhatsAppBotService],
