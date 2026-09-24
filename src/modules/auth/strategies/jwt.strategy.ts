@@ -13,7 +13,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any) {
-    // O retorno vira req.user.
-    return { username: payload.sub, role: payload.role };
+    // Vira req.user — carrega o tenant_id do token.
+    return { userId: payload.sub, tenant_id: payload.tenant_id, role: payload.role };
   }
 }
