@@ -30,10 +30,14 @@ import { IfoodModule } from './modules/ifood/ifood.module';
       useFactory: (configService: ConfigService) => ({
         ...configService.get('database'),
       }),
-      // Registra o DataSource no contexto transactional (necessário para RLS).
       dataSourceFactory: async (options) => {
         if (!options) throw new Error('Opções do TypeORM ausentes');
-        return addTransactionalDataSource(new DataSource(options)).initialize();
+        const dataSource = new DataSource(options);
+        try {
+          return await addTransactionalDataSource(dataSource).initialize();
+        } catch {
+          return dataSource.initialize();
+        }
       },
     }),
     BullModule.forRootAsync({
