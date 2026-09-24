@@ -60,8 +60,8 @@ services:
       # Nomes de serviço da rede docker, não localhost.
       - DB_HOST=postgres
       - DB_PORT=5432
-      - DB_USER=casadobolo_user
-      - DB_PASS=casadobolo_pass
+      - DB_USER=casadobolo_app
+      - DB_PASS=k27RMlpAd7-YrwJ348ctipTFnGf6xFrc
       - DB_NAME=casadobolo_db
       - REDIS_HOST=redis
       - REDIS_PORT=6379
