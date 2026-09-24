@@ -54,6 +54,8 @@ services:
       - evolution_api
     ports:
       - '3000:3000'
+    env_file:
+      - .env
     environment:
       # Nomes de serviço da rede docker, não localhost.
       - DB_HOST=postgres
