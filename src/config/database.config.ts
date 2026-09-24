@@ -8,5 +8,6 @@ export default registerAs('database', () => ({
   password: process.env.DB_PASS || 'casadobolo_pass',
   database: process.env.DB_NAME || 'casadobolo_db',
   entities: [__dirname + '/../**/*.entity{.ts,.js}'],
-  synchronize: true, // Em produção, altere para false e utilize migrations
+  subscribers: [__dirname + '/../**/*.subscriber{.ts,.js}'],
+  synchronize: true,
 }));

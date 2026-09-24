@@ -1,16 +1,13 @@
+import 'reflect-metadata';
+import { initializeTransactionalContext, StorageDriver } from 'typeorm-transactional';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
-import { NestExpressApplication } from '@nestjs/platform-express';
-import { join } from 'path';
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule);
+  // Precisa vir ANTES de criar o app: prepara a propagação de transação/conexão.
+  initializeTransactionalContext({ storageDriver: StorageDriver.AUTO });
 
-  // Serve a pasta 'uploads' como arquivos estáticos acessíveis publicamente
-  app.useStaticAssets(join(__dirname, '..', 'uploads'), {
-    prefix: '/uploads/',
-  });
-
-  await app.listen(process.env.PORT || 3000);
+  const app = await NestFactory.create(AppModule);
+  await app.listen(3000);
 }
 bootstrap();

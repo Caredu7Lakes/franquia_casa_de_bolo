@@ -2,11 +2,14 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BullModule } from '@nestjs/bullmq';
+import { DataSource } from 'typeorm';
+import { addTransactionalDataSource } from 'typeorm-transactional';
 
 import databaseConfig from './config/database.config';
 import redisConfig from './config/redis.config';
 import whatsappConfig from './config/whatsapp.config';
 
+import { TenancyModule } from './modules/tenancy/tenancy.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { WhatsAppModule } from './modules/whatsapp/whatsapp.module';
 import { CustomersModule } from './modules/customers/customers.module';
@@ -23,21 +26,27 @@ import { IfoodModule } from './modules/ifood/ifood.module';
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
+      inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         ...configService.get('database'),
       }),
-      inject: [ConfigService],
+      // Registra o DataSource no contexto transactional (necessário para RLS).
+      dataSourceFactory: async (options) => {
+        if (!options) throw new Error('Opções do TypeORM ausentes');
+        return addTransactionalDataSource(new DataSource(options)).initialize();
+      },
     }),
     BullModule.forRootAsync({
       imports: [ConfigModule],
+      inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         connection: {
           host: configService.get('redis.host'),
           port: configService.get('redis.port'),
         },
       }),
-      inject: [ConfigService],
     }),
+    TenancyModule,
     AuthModule,
     WhatsAppModule,
     CustomersModule,
