@@ -1,20 +1,19 @@
 import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  ManyToOne,
-  JoinColumn,
+  Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne, JoinColumn, Index,
 } from 'typeorm';
 import { Customer } from '../../customers/entities/customer.entity';
 
 @Entity('orders')
+@Index(['tenant_id'])
 export class Order {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  // ID do pedido no iFood (idempotência: não gravar o mesmo pedido 2x).
-  @Column({ unique: true })
+  @Column('uuid')
+  tenant_id!: string;
+
+  // ID do pedido no iFood, único por tenant (cada loja tem sua numeração).
+  @Column()
   ifood_order_id!: string;
 
   @Column({ nullable: true })
@@ -23,7 +22,6 @@ export class Order {
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
   total!: number;
 
-  // Itens do pedido, como vieram do iFood (nome, quantidade, preço).
   @Column({ type: 'jsonb', nullable: true })
   items!: any;
 

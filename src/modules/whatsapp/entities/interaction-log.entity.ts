@@ -1,13 +1,19 @@
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne, JoinColumn } from 'typeorm';
+import {
+  Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, ManyToOne, JoinColumn, Index,
+} from 'typeorm';
 import { Customer } from '../../customers/entities/customer.entity';
 
 @Entity('interaction_logs')
+@Index(['tenant_id'])
 export class InteractionLog {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
+  @Column('uuid')
+  tenant_id!: string;
+
   @Column({ nullable: true })
-  menuOption!: string; // Ex: '1.1', '1.2', '2.1', 'DUVIDAS'
+  menuOption!: string;
 
   @Column({ type: 'text', nullable: true })
   userMessage!: string;

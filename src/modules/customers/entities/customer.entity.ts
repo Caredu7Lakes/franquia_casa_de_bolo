@@ -1,58 +1,52 @@
 import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
-  OneToMany,
+  Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany, Index,
 } from 'typeorm';
 import { InteractionLog } from '../../whatsapp/entities/interaction-log.entity';
 import { Order } from '../../ifood/entities/order.entity';
 
 @Entity('customers')
+// Telefone único POR TENANT (não global) — dois tenants podem ter o mesmo cliente.
+@Index(['tenant_id', 'phone_number'], { unique: true })
 export class Customer {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
 
-  @Column({ unique: true, length: 20 })
+  @Column('uuid')
+  tenant_id!: string;
+
+  @Column({ length: 20 })
   phone_number!: string;
 
   @Column({ nullable: true, length: 250 })
   name!: string;
 
-  // --- Contato (preenchido pelo bot ou pelo pedido iFood) ---
   @Column({ nullable: true, length: 250 })
   email!: string;
 
   @Column({ type: 'text', nullable: true })
   delivery_address!: string;
 
-  // --- Marketing ---
   @Column({ default: false })
   opt_in_promotions!: boolean;
 
   @Column({ type: 'timestamp with time zone', nullable: true })
   opt_in_updated_at!: Date;
 
-  // --- CRM: relacionamento e satisfação ---
   @Column({ type: 'text', array: true, default: () => "'{}'" })
   tags!: string[];
 
   @Column({ type: 'text', nullable: true })
   notes!: string;
 
-  // Última nota NPS registrada (0-10).
   @Column({ type: 'smallint', nullable: true })
   nps_score!: number;
 
-  // --- CRM: hábitos de compra (derivados dos pedidos iFood) ---
   @Column({ type: 'int', default: 0 })
   orders_count!: number;
 
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
   total_spent!: number;
 
-  // Ticket médio = total_spent / orders_count (calculado na ingestão do pedido).
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
   average_ticket!: number;
 

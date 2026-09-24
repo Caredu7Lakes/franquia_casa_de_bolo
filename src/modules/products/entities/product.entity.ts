@@ -1,9 +1,5 @@
 import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  CreateDateColumn,
-  UpdateDateColumn,
+  Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, Index,
 } from 'typeorm';
 
 export enum ProductCategory {
@@ -20,9 +16,13 @@ export enum ProductCategory {
 }
 
 @Entity('products')
+@Index(['tenant_id'])
 export class Product {
   @PrimaryGeneratedColumn('uuid')
   id!: string;
+
+  @Column('uuid')
+  tenant_id!: string;
 
   @Column({ length: 150 })
   name!: string;
