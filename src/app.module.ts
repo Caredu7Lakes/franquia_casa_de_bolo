@@ -1,24 +1,50 @@
-import { Controller, Get, UseGuards } from '@nestjs/common';
-import { OwnerAnalyticsService } from '../services/owner-analytics.service';
-import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
+import { Module } from '@nestjs/common';
+import { ConfigModule, ConfigService } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { BullModule } from '@nestjs/bullmq';
 
-@Controller('analytics')
-@UseGuards(JwtAuthGuard) // Todas as rotas de analytics exigem JWT.
-export class OwnerAnalyticsController {
-  constructor(private readonly analyticsService: OwnerAnalyticsService) {}
+import databaseConfig from './config/database.config';
+import redisConfig from './config/redis.config';
+import whatsappConfig from './config/whatsapp.config';
 
-  @Get('frequent-questions')
-  getMostFrequentQuestions() {
-    return this.analyticsService.getMostFrequentQuestions();
-  }
+import { AuthModule } from './modules/auth/auth.module';
+import { WhatsAppModule } from './modules/whatsapp/whatsapp.module';
+import { CustomersModule } from './modules/customers/customers.module';
+import { AnalyticsModule } from './modules/analytics/analytics.module';
+import { MarketingModule } from './modules/marketing/marketing.module';
+import { ProductsModule } from './modules/products/products.module';
+import { IfoodModule } from './modules/ifood/ifood.module';
 
-  @Get('peak-hours')
-  getPeakHours() {
-    return this.analyticsService.getPeakHoursAndDays();
-  }
-
-  @Get('opted-in-customers')
-  getOptedInCustomers() {
-    return this.analyticsService.getOptedInCustomers();
-  }
-}
+@Module({
+  imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+      load: [databaseConfig, redisConfig, whatsappConfig],
+    }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        ...configService.get('database'),
+      }),
+      inject: [ConfigService],
+    }),
+    BullModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        connection: {
+          host: configService.get('redis.host'),
+          port: configService.get('redis.port'),
+        },
+      }),
+      inject: [ConfigService],
+    }),
+    AuthModule,
+    WhatsAppModule,
+    CustomersModule,
+    AnalyticsModule,
+    MarketingModule,
+    ProductsModule,
+    IfoodModule,
+  ],
+})
+export class AppModule {}
