@@ -14,7 +14,7 @@ export class Customer {
   @Column('uuid')
   tenant_id!: string;
 
-  @Column({ length: 20 })
+  @Column({ length: 30 })
   phone_number!: string;
 
   @Column({ nullable: true, length: 250 })

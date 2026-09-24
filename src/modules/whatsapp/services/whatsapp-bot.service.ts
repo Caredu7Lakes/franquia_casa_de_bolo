@@ -37,8 +37,9 @@ export class WhatsAppBotService {
     if (!message) return;
     if (message.key?.fromMe) return;
 
-    const from: string = message.key?.remoteJid || '';
-    if (!from || from.endsWith('@g.us') || from === 'status@broadcast') return;
+    const rawJid: string = message.key?.remoteJid || '';
+    if (!rawJid || rawJid.endsWith('@g.us') || rawJid === 'status@broadcast') return;
+    const from = rawJid.split('@')[0];
 
     // Instância de ENVIO = a que recebeu (cada tenant tem a sua).
     const instance: string = body?.instance;
