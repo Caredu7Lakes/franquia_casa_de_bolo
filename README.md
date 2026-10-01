@@ -81,8 +81,12 @@ Login: `POST /auth/login` → retorna JWT (validade 12h). Enviar `Authorization:
 | `GET /customers`, `GET /customers/:id`, `PATCH /customers/:id` | **JWT** |
 | `GET /analytics/*` | **JWT** |
 | `POST /marketing/campaign` | **JWT** |
-| `POST /webhook` (Evolution) | Aberto |
-| `POST /ifood/webhook` | Aberto |
+| `POST /webhook` (Evolution) | **HMAC** (assinatura do corpo) |
+| `POST /ifood/webhook` | **HMAC** (assinatura do corpo) |
+
+> **Webhooks** exigem assinatura **HMAC-SHA256** do corpo cru no header
+> `x-signature-256` (`sha256=<hexdigest>`), validada contra `WEBHOOK_HMAC_SECRET`.
+> Sem o segredo configurado, os webhooks são recusados (fail-safe).
 
 ---
 
@@ -182,4 +186,7 @@ docker compose exec -T backend node /app/seed-products.js
 | 3 | **Credenciamento iFood** | ⏳ Pendente | Código pronto; falta app de parceiro (CNPJ), homologação, autorização da loja e webhook HTTPS. |
 | 4 | **99Food** | ⏳ Pendente | Link de pedido ainda não disponível (placeholder no menu). |
 
-> ✅ **Resolvido:** gravação no banco sob RLS multi-tenant (`tenant_id` com `DEFAULT` da sessão + `SET app.current_tenant` na conexão correta da transação).
+> ✅ **Resolvido:**
+> - Gravação no banco sob RLS multi-tenant (`tenant_id` com `DEFAULT` da sessão + `SET app.current_tenant` na conexão correta da transação).
+> - `TenantInterceptor` ativo globalmente — rotas do painel operam sob RLS.
+> - Webhooks protegidos por assinatura **HMAC-SHA256** do corpo.
