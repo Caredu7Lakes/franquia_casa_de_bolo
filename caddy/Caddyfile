@@ -1,10 +1,14 @@
-# Reverse proxy com HTTPS automático (Let's Encrypt).
+# Reverse proxy com HTTPS automático (Let's Encrypt) + SPA do painel.
 # DOMAIN e ACME_EMAIL vêm do ambiente (docker-compose → .env).
 #
 # O Caddy obtém e renova o certificado sozinho, desde que:
 #   - DOMAIN tenha um registro DNS A apontando para o IP público da VM;
 #   - as portas 80 e 443 estejam abertas (NSG do Azure + firewall da VM).
 # A porta 80 é usada no desafio ACME e redireciona para 443 automaticamente.
+#
+# Rotas de API vão para o backend; o resto é servido como SPA (arquivos
+# estáticos do painel, com fallback para index.html). O painel usa HashRouter,
+# então as rotas de tela (#/produtos, #/clientes...) não colidem com a API.
 
 {
 	email {$ACME_EMAIL}
@@ -13,10 +17,19 @@
 {$DOMAIN} {
 	encode gzip
 
-	# API administrativa + webhooks (o backend valida JWT/HMAC internamente).
-	reverse_proxy backend:3000
+	# API → backend NestJS (JWT/HMAC validados internamente).
+	@api path /auth* /products* /customers* /analytics* /marketing* /webhook* /ifood/*
+	handle @api {
+		reverse_proxy backend:3000
+	}
 
-	# Cabeçalhos de segurança básicos.
+	# Painel (SPA) — arquivos estáticos com fallback para index.html.
+	handle {
+		root * /srv
+		try_files {path} /index.html
+		file_server
+	}
+
 	header {
 		Strict-Transport-Security "max-age=31536000; includeSubDomains"
 		X-Content-Type-Options "nosniff"

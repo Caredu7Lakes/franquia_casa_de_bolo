@@ -12,6 +12,7 @@ Backend **self-hosted** de atendimento no WhatsApp para confeitaria/padaria, sem
 - **Marketing** — disparo em massa de campanhas com fila e delay dinâmico (anti-ban), restrito a quem deu opt-in.
 - **Analytics** — opções de menu mais acessadas, horários de pico, base apta a promoções.
 - **Autenticação** — login JWT protegendo todos os endpoints administrativos.
+- **Painel administrativo (frontend)** — SPA React/Vite/Tailwind: dashboard de analytics, CRUD de produtos, CRM de clientes e disparo de campanhas. Ver [`frontend/`](./frontend/README.md).
 
 ---
 
@@ -26,7 +27,8 @@ Backend **self-hosted** de atendimento no WhatsApp para confeitaria/padaria, sem
 | **Redis + BullMQ** | Filas de disparo assíncronas com rate limiting |
 | **Cloudinary** | Armazenamento das fotos do cardápio (URL pública) |
 | **JWT + Passport + bcrypt** | Autenticação do painel |
-| **Caddy** | Reverse proxy com HTTPS automático (Let's Encrypt) |
+| **React + Vite + Tailwind** | Painel administrativo (SPA), servido pelo Caddy |
+| **Caddy** | Reverse proxy com HTTPS automático (Let's Encrypt) + serve o SPA |
 | **Docker Compose** | Postgres + Redis + Evolution + backend + relay + Caddy |
 
 ---
@@ -189,12 +191,14 @@ Subir:
 ```bash
 docker compose up -d --build caddy
 ```
-O Caddy obtém e renova o certificado do Let's Encrypt automaticamente. A partir
-daí o painel/API respondem em `https://SEU_DOMINIO` (o `http://` redireciona).
-Acompanhe a emissão do certificado:
+O Caddy obtém e renova o certificado do Let's Encrypt automaticamente, **builda o
+painel** (SPA) e o serve no mesmo domínio, fazendo o proxy da API. A partir daí o
+painel abre em `https://SEU_DOMINIO` e a API responde nos mesmos caminhos (o
+`http://` redireciona). Acompanhe a emissão do certificado:
 ```bash
 docker compose logs -f caddy
 ```
+O código do painel fica em [`frontend/`](./frontend/README.md) (dev: `npm run dev`).
 
 ---
 
@@ -223,3 +227,5 @@ docker compose logs -f caddy
 > - Webhooks protegidos por assinatura **HMAC-SHA256** do corpo.
 > - **webhook_relay** assina os webhooks da Evolution (que não assina nativamente) ponta a ponta.
 > - **HTTPS** via Caddy (reverse proxy com TLS automático); backend restrito a `127.0.0.1`.
+> - **Painel administrativo** (React/Vite/Tailwind) servido pelo Caddy: dashboard, produtos, clientes e marketing.
+> - **Testes** unitários (Jest) do bot e do analytics.

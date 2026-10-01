@@ -91,10 +91,13 @@ services:
       - WEBHOOK_HMAC_SECRET=${WEBHOOK_HMAC_SECRET}
       - WEBHOOK_HMAC_HEADER=x-signature-256
 
-  # Reverse proxy com HTTPS automático (Let's Encrypt). Único serviço com portas
-  # públicas (80/443). Termina o TLS e repassa para o backend na rede interna.
+  # Reverse proxy público (HTTPS automático) + SPA do painel. Único serviço com
+  # portas públicas (80/443). Builda o frontend e serve os estáticos, termina o
+  # TLS e faz o proxy da API para o backend na rede interna.
   caddy:
-    image: caddy:2-alpine
+    build:
+      context: .
+      dockerfile: caddy/Dockerfile
     container_name: casadobolo_caddy
     restart: always
     depends_on:
@@ -106,7 +109,6 @@ services:
       - DOMAIN=${DOMAIN}
       - ACME_EMAIL=${ACME_EMAIL}
     volumes:
-      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy_data:/data
       - caddy_config:/config
 
