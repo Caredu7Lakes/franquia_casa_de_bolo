@@ -137,10 +137,24 @@ docker compose up -d --build
 ```
 Sobe PostgreSQL, Redis, Evolution API e backend.
 
-### 4. Conectar a instância do WhatsApp
+### 4. Rodar as migrations
+O schema é gerido por migrations (`synchronize: false`). Rode após subir o banco:
+```bash
+docker compose exec backend npm run migration:run
+```
+Inclui o baseline, as políticas **RLS multi-tenant** e o `DEFAULT` de `tenant_id`
+(preenche o tenant corrente da sessão RLS em cada insert). **Sem isso, as
+gravações nas tabelas com RLS são rejeitadas.** Depois, crie o tenant e o usuário
+OWNER:
+```bash
+docker compose exec -T backend node /app/migrate-phase1.js
+docker compose exec -T backend node /app/migrate-phase2.js
+```
+
+### 5. Conectar a instância do WhatsApp
 Acesse `http://SEU_IP:8080/manager`, informe a `EVOLUTION_API_KEY`, gere o QR e pareie um **número dedicado** (não o pessoal).
 
-### 5. Popular o cardápio
+### 6. Popular o cardápio
 ```bash
 docker compose cp products.seed.json backend:/app/products.seed.json
 docker compose cp seed-products.js backend:/app/seed-products.js
@@ -155,4 +169,17 @@ docker compose exec -T backend node /app/seed-products.js
 - **Sessão do WhatsApp** pode cair (atualização/desconexão): monitore `connection.update` e releia o QR.
 - **iFood**: exige app de parceiro (CNPJ), homologação, autorização da loja e **webhook HTTPS**. O código está pronto; falta o credenciamento e o TLS.
 - **HTTPS**: obrigatório antes de uso real — dados de clientes não devem trafegar em texto puro.
-- **Produção**: trocar `synchronize: true` por `false` + migrations, para não alterar/dropar colunas com dado.
+- **Schema**: já em `synchronize: false` + migrations. Nunca ativar `synchronize` em produção (altera/dropa colunas com dado).
+
+---
+
+## 📋 Pendências
+
+| # | Item | Status | Bloqueio / Próximo passo |
+| :-- | :--- | :--- | :--- |
+| 1 | **Chip do WhatsApp** | ⏳ Aguardando | O número dedicado ainda **não foi recebido**. Sem o chip não é possível parear a instância na Evolution (QR code), então o bot **grava no banco mas não responde** (erro 404 `instance does not exist` no `sendText`). Quando chegar: ativar o número num celular → `POST /instance/create` → ler o QR em `http://IP:8080/manager` (ou `/instance/connect/casa_do_bolo_instance`) → parear. |
+| 2 | **HTTPS / reverse proxy** | ⏳ Pendente | Obrigatório antes do uso real (dados de clientes). Configurar proxy reverso com TLS. |
+| 3 | **Credenciamento iFood** | ⏳ Pendente | Código pronto; falta app de parceiro (CNPJ), homologação, autorização da loja e webhook HTTPS. |
+| 4 | **99Food** | ⏳ Pendente | Link de pedido ainda não disponível (placeholder no menu). |
+
+> ✅ **Resolvido:** gravação no banco sob RLS multi-tenant (`tenant_id` com `DEFAULT` da sessão + `SET app.current_tenant` na conexão correta da transação).
