@@ -71,6 +71,24 @@ services:
       - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
       - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
       - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
+      # Mesmo segredo usado pelo relay para assinar os webhooks.
+      - WEBHOOK_HMAC_SECRET=${WEBHOOK_HMAC_SECRET}
+      - WEBHOOK_HMAC_HEADER=x-signature-256
+
+  # Relay de assinatura: a Evolution não assina os webhooks. Ela aponta para
+  # http://webhook_relay:3001/webhook; o relay calcula o HMAC do corpo e repassa
+  # ao backend com o header x-signature-256. Só na rede interna (sem portas pra fora).
+  webhook_relay:
+    build: ./relay
+    container_name: casadobolo_relay
+    restart: always
+    depends_on:
+      - backend
+    environment:
+      - PORT=3001
+      - UPSTREAM_URL=http://backend:3000
+      - WEBHOOK_HMAC_SECRET=${WEBHOOK_HMAC_SECRET}
+      - WEBHOOK_HMAC_HEADER=x-signature-256
 
 volumes:
   pgdata:

@@ -56,10 +56,12 @@ Backend **self-hosted** de atendimento no WhatsApp para confeitaria/padaria, sem
 
 **Atendimento:**
 ```
-WhatsApp ⇄ Evolution API → webhook /webhook → WhatsAppBotService
+WhatsApp ⇄ Evolution API → webhook_relay (assina HMAC) → /webhook → WhatsAppBotService
    → menu (1..10 categorias, P pedido, D dúvidas) → resposta
    → InteractionLog
 ```
+> A Evolution não assina os webhooks; o **webhook_relay** calcula o HMAC-SHA256
+> do corpo e repassa ao backend com `x-signature-256`.
 
 **Pedido iFood → CRM:**
 ```
@@ -158,6 +160,16 @@ docker compose exec -T backend node /app/migrate-phase2.js
 ### 5. Conectar a instância do WhatsApp
 Acesse `http://SEU_IP:8080/manager`, informe a `EVOLUTION_API_KEY`, gere o QR e pareie um **número dedicado** (não o pessoal).
 
+Aponte o webhook da instância para o **relay de assinatura** (não direto para o
+backend), com `webhookByEvents=false` para postar sempre em `/webhook`:
+```bash
+curl -s -X POST http://SEU_IP:8080/webhook/set/casa_do_bolo_instance \
+ -H "apikey: $EVOLUTION_API_KEY" -H "Content-Type: application/json" \
+ -d '{"webhook":{"enabled":true,"url":"http://webhook_relay:3001/webhook","webhookByEvents":false,"events":["MESSAGES_UPSERT"]}}'
+```
+O relay assina o corpo (HMAC-SHA256) e repassa ao backend. Sem ele, a Evolution
+(que não assina) receberia `401` do `HmacSignatureGuard`.
+
 ### 6. Popular o cardápio
 ```bash
 docker compose cp products.seed.json backend:/app/products.seed.json
@@ -190,3 +202,4 @@ docker compose exec -T backend node /app/seed-products.js
 > - Gravação no banco sob RLS multi-tenant (`tenant_id` com `DEFAULT` da sessão + `SET app.current_tenant` na conexão correta da transação).
 > - `TenantInterceptor` ativo globalmente — rotas do painel operam sob RLS.
 > - Webhooks protegidos por assinatura **HMAC-SHA256** do corpo.
+> - **webhook_relay** assina os webhooks da Evolution (que não assina nativamente) ponta a ponta.
