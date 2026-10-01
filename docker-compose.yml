@@ -62,7 +62,8 @@ services:
       - DB_HOST=postgres
       - DB_PORT=5432
       - DB_USER=casadobolo_app
-      - DB_PASS=k27RMlpAd7-YrwJ348ctipTFnGf6xFrc
+      # Senha do role de runtime — vem do .env (mesma usada pela migration RLS).
+      - DB_PASS=${APP_DB_PASSWORD}
       - DB_NAME=casadobolo_db
       - REDIS_HOST=redis
       - REDIS_PORT=6379

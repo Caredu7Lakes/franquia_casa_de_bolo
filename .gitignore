@@ -33,3 +33,5 @@ evolution_instances/
 Thumbs.db
 .vscode/
 .idea/
+# Backups do banco (gerados na VM)
+backups/

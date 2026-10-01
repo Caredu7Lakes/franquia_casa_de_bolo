@@ -8,7 +8,9 @@
 DO $$
 BEGIN
   IF NOT EXISTS (SELECT 1 FROM pg_roles WHERE rolname = 'casadobolo_app') THEN
-    CREATE ROLE casadobolo_app LOGIN PASSWORD 'k27RMlpAd7-YrwJ348ctipTFnGf6xFrc';
+    -- Defina a senha via APP_DB_PASSWORD (não commitar senha real).
+    -- Em produção o role é criado pela migration RlsPoliciesAndRole (usa env).
+    CREATE ROLE casadobolo_app LOGIN PASSWORD 'TROQUE_POR_APP_DB_PASSWORD';
   END IF;
 END $$;
 

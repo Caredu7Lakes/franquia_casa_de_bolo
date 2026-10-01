@@ -210,6 +210,8 @@ O código do painel fica em [`frontend/`](./frontend/README.md) (dev: `npm run d
 - **iFood**: exige app de parceiro (CNPJ), homologação, autorização da loja e **webhook HTTPS**. O código está pronto; falta o credenciamento e o TLS.
 - **HTTPS**: via reverse proxy **Caddy** (TLS automático). Depende de domínio + DNS + portas 80/443 abertas. O backend não deve ser exposto sem TLS.
 - **Schema**: já em `synchronize: false` + migrations. Nunca ativar `synchronize` em produção (altera/dropa colunas com dado).
+- **Segredos**: nenhuma senha no código. `APP_DB_PASSWORD` (role de runtime do banco), `JWT_SECRET`, `WEBHOOK_HMAC_SECRET`, `OWNER_PASSWORD` e `CLOUDINARY_*` vêm do `.env` (ver `.env.example`). Para rotacionar a senha do banco: defina o novo `APP_DB_PASSWORD` no `.env`, rode `ALTER ROLE casadobolo_app WITH PASSWORD '<novo>';` como `casadobolo_user` e `docker compose up -d backend`.
+- **Backup**: `bash scripts/backup-db.sh` gera um dump comprimido em `./backups/` com rotação (padrão: 14). Agende no cron, ex.: `0 3 * * * cd ~/franquia_casa_de_bolo && bash scripts/backup-db.sh`. Restaurar: `gunzip -c backups/ARQ.sql.gz | docker compose exec -T postgres psql -U casadobolo_user -d casadobolo_db`.
 
 ---
 
