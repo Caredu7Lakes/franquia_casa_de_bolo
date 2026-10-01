@@ -1,0 +1,8 @@
+# Reduz o contexto de build e evita copiar artefatos locais.
+# Vale para TODOS os builds (backend e caddy), que compartilham a raiz.
+**/node_modules
+dist
+coverage
+.git
+.github
+*.tsbuildinfo
