@@ -36,6 +36,13 @@ export class UsersService {
     return users.map(toPublic);
   }
 
+  /** Quantos OWNERs ativos o tenant tem — base da trava do último OWNER. */
+  private countActiveOwners(tenantId: string): Promise<number> {
+    return this.repo.count({
+      where: { tenant_id: tenantId, role: UserRole.OWNER, active: true },
+    });
+  }
+
   async create(tenantId: string, input: CreateInput) {
     const email = (input.email || '').trim().toLowerCase();
     if (!email || !input.password) {
@@ -63,6 +70,15 @@ export class UsersService {
     const user = await this.repo.findOne({ where: { id, tenant_id: tenantId } });
     if (!user) throw new NotFoundException('Usuário não encontrado.');
 
+    // Trava do último OWNER: não deixar desativar nem rebaixar o único OWNER ativo.
+    const losesOwner =
+      user.role === UserRole.OWNER &&
+      user.active &&
+      (input.active === false || (input.role !== undefined && input.role !== UserRole.OWNER));
+    if (losesOwner && (await this.countActiveOwners(tenantId)) <= 1) {
+      throw new BadRequestException('Não é possível desativar ou rebaixar o último OWNER ativo.');
+    }
+
     if (input.name !== undefined) user.name = input.name;
     if (input.role !== undefined) user.role = input.role;
     if (input.active !== undefined) user.active = input.active;
@@ -73,5 +89,22 @@ export class UsersService {
       user.password_hash = await bcrypt.hash(input.password, 10);
     }
     return toPublic(await this.repo.save(user));
+  }
+
+  async remove(tenantId: string, id: string) {
+    const user = await this.repo.findOne({ where: { id, tenant_id: tenantId } });
+    if (!user) throw new NotFoundException('Usuário não encontrado.');
+
+    // Trava do último OWNER: não deixar excluir o único OWNER ativo.
+    if (
+      user.role === UserRole.OWNER &&
+      user.active &&
+      (await this.countActiveOwners(tenantId)) <= 1
+    ) {
+      throw new BadRequestException('Não é possível excluir o último OWNER ativo.');
+    }
+
+    await this.repo.remove(user);
+    return { id, deleted: true };
   }
 }

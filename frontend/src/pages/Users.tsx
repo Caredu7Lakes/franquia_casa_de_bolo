@@ -58,6 +58,16 @@ export default function Users() {
     }
   }
 
+  async function removeUser(u: User) {
+    if (!window.confirm(`Excluir definitivamente ${u.email}?`)) return;
+    try {
+      await api.delete(`/users/${u.id}`);
+      load();
+    } catch (e) {
+      setError(apiError(e, 'Falha ao excluir o usuário.'));
+    }
+  }
+
   return (
     <div>
       <div className="mb-6 flex items-center justify-between">
@@ -99,6 +109,12 @@ export default function Users() {
                       <button className="btn-ghost" onClick={() => resetPassword(u)}>Senha</button>
                       <button className="btn-ghost" onClick={() => toggleActive(u)}>
                         {u.active ? 'Desativar' : 'Ativar'}
+                      </button>
+                      <button
+                        className="btn-ghost text-red-600 hover:bg-red-50"
+                        onClick={() => removeUser(u)}
+                      >
+                        Excluir
                       </button>
                     </div>
                   </td>

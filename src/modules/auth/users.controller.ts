@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, Req, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { OwnerGuard } from './guards/owner.guard';
@@ -33,5 +33,10 @@ export class UsersController {
     @Body() body: { password?: string; name?: string; role?: UserRole; active?: boolean },
   ) {
     return this.usersService.update(req.user.tenant_id, id, body);
+  }
+
+  @Delete(':id')
+  remove(@Req() req: any, @Param('id') id: string) {
+    return this.usersService.remove(req.user.tenant_id, id);
   }
 }

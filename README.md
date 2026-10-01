@@ -81,7 +81,7 @@ Login: `POST /auth/login` → retorna JWT (validade 12h). Enviar `Authorization:
 | Rota | Acesso |
 | :--- | :--- |
 | `POST /auth/login` | Aberto |
-| `GET` / `POST /users`, `PATCH /users/:id` | **JWT (OWNER)** — gestão de usuários |
+| `GET` / `POST /users`, `PATCH` / `DELETE /users/:id` | **JWT (OWNER)** — gestão de usuários (trava do último OWNER) |
 | `GET /products` | Aberto (cardápio) |
 | `POST` / `PATCH /products/:id` | **JWT** |
 | `GET /customers`, `GET /customers/:id`, `PATCH /customers/:id` | **JWT** |
