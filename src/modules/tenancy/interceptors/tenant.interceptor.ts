@@ -31,8 +31,13 @@ export class TenantInterceptor implements NestInterceptor {
 
     return from(
       runInTransaction(async () => {
-        // Escapa o uuid com quote_literal implícito via parâmetro seguro.
-        await this.dataSource.query(
+        // IMPORTANTE: usar dataSource.manager (não dataSource.query).
+        // Dentro de runInTransaction, o typeorm-transactional troca o manager
+        // pelo manager da transação corrente (via async local storage), então o
+        // SET e os writes do next.handle() usam a MESMA conexão. Com
+        // dataSource.query, o SET iria para outra conexão do pool e o RLS
+        // bloquearia as gravações (app.current_tenant NULL).
+        await this.dataSource.manager.query(
           `SELECT set_config('app.current_tenant', $1, true)`,
           [tenantId],
         );
