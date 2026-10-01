@@ -18,7 +18,7 @@
 	encode gzip
 
 	# API → backend NestJS (JWT/HMAC validados internamente).
-	@api path /auth* /products* /customers* /analytics* /marketing* /webhook* /ifood/*
+	@api path /auth* /users* /products* /customers* /analytics* /marketing* /webhook* /ifood/*
 	handle @api {
 		reverse_proxy backend:3000
 	}

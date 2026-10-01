@@ -25,5 +25,11 @@ SPA e faz o proxy da API no mesmo domínio — não precisa subir nada à parte.
 Basta `docker compose up -d --build` na raiz do projeto.
 
 ## Rotas (HashRouter)
-`#/` Dashboard · `#/produtos` · `#/clientes` · `#/marketing` · `#/login`.
+`#/` Dashboard · `#/produtos` · `#/clientes` · `#/marketing` · `#/usuarios` (só OWNER) · `#/login`.
 O HashRouter evita colisão das rotas de tela com os caminhos da API.
+
+## Gestão de usuários
+A tela **Usuários** (visível apenas para o papel OWNER) permite cadastrar novos
+acessos (e-mail + senha + papel OWNER/OPERATOR), ativar/desativar e redefinir
+senha. Consome `GET/POST /users` e `PATCH /users/:id` (todas protegidas por JWT
+e restritas ao OWNER no backend).

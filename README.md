@@ -11,8 +11,8 @@ Backend **self-hosted** de atendimento no WhatsApp para confeitaria/padaria, sem
 - **Integração iFood** — ingestão de pedidos via webhook, alimentando os hábitos de compra do CRM.
 - **Marketing** — disparo em massa de campanhas com fila e delay dinâmico (anti-ban), restrito a quem deu opt-in.
 - **Analytics** — opções de menu mais acessadas, horários de pico, base apta a promoções.
-- **Autenticação** — login JWT protegendo todos os endpoints administrativos.
-- **Painel administrativo (frontend)** — SPA React/Vite/Tailwind: dashboard de analytics, CRUD de produtos, CRM de clientes e disparo de campanhas. Ver [`frontend/`](./frontend/README.md).
+- **Autenticação e usuários** — login JWT; gestão de usuários do painel (cadastro de e-mail/senha, papéis OWNER/OPERATOR, ativar/desativar, redefinir senha) restrita ao OWNER.
+- **Painel administrativo (frontend)** — SPA React/Vite/Tailwind: dashboard de analytics, CRUD de produtos, CRM de clientes, disparo de campanhas e **gestão de usuários**. Ver [`frontend/`](./frontend/README.md).
 
 ---
 
@@ -81,6 +81,7 @@ Login: `POST /auth/login` → retorna JWT (validade 12h). Enviar `Authorization:
 | Rota | Acesso |
 | :--- | :--- |
 | `POST /auth/login` | Aberto |
+| `GET` / `POST /users`, `PATCH /users/:id` | **JWT (OWNER)** — gestão de usuários |
 | `GET /products` | Aberto (cardápio) |
 | `POST` / `PATCH /products/:id` | **JWT** |
 | `GET /customers`, `GET /customers/:id`, `PATCH /customers/:id` | **JWT** |

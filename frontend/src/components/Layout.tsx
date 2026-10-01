@@ -1,7 +1,7 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { clearToken, getTokenPayload } from '../auth/auth';
 
-const nav = [
+const baseNav = [
   { to: '/', label: 'Dashboard', end: true, icon: '📊' },
   { to: '/produtos', label: 'Produtos', icon: '🍰' },
   { to: '/clientes', label: 'Clientes', icon: '👥' },
@@ -11,6 +11,8 @@ const nav = [
 export default function Layout() {
   const navigate = useNavigate();
   const role = getTokenPayload()?.role;
+  // Gestão de usuários só aparece para o OWNER.
+  const nav = role === 'OWNER' ? [...baseNav, { to: '/usuarios', label: 'Usuários', icon: '🔑' }] : baseNav;
 
   function logout() {
     clearToken();
