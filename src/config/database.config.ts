@@ -13,5 +13,5 @@ export default registerAs('database', () => ({
   // Schema agora é gerenciado por migrations, não por synchronize.
   synchronize: false,
   // Aplica migrations pendentes automaticamente no boot.
-  migrationsRun: true,
+  migrationsRun: false,
 }));
