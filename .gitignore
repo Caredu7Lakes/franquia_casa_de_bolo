@@ -10,6 +10,9 @@ dist/
 build/
 *.tsbuildinfo
 
+# Testes
+coverage/
+
 # Variáveis de Ambiente e Segredos (NUNCA SUBIR)
 .env
 .env.production
