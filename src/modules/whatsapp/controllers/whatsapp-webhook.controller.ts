@@ -1,6 +1,7 @@
-import { Controller, Post, Body, HttpCode, HttpStatus, Logger } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus, Logger, UseGuards } from '@nestjs/common';
 import { WhatsAppBotService } from '../services/whatsapp-bot.service';
 import { TenantResolverService } from '../../tenancy/tenant-resolver.service';
+import { HmacSignatureGuard } from '../../../common/guards/hmac-signature.guard';
 
 /**
  * Webhook da Evolution API v2 (multi-tenant).
@@ -8,6 +9,7 @@ import { TenantResolverService } from '../../tenancy/tenant-resolver.service';
  * processamento roda DENTRO do contexto RLS daquele tenant.
  */
 @Controller('webhook')
+@UseGuards(HmacSignatureGuard) // Só aceita POST assinado (HMAC-SHA256 do corpo).
 export class WhatsAppWebhookController {
   private readonly logger = new Logger(WhatsAppWebhookController.name);
 

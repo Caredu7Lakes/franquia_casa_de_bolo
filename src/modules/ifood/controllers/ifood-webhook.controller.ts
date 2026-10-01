@@ -1,7 +1,8 @@
-import { Controller, Post, Body, HttpCode, HttpStatus, Logger } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus, Logger, UseGuards } from '@nestjs/common';
 import { IfoodOrderService } from '../services/ifood-order.service';
 import { IfoodClient } from '../ifood.client';
 import { TenantResolverService } from '../../tenancy/tenant-resolver.service';
+import { HmacSignatureGuard } from '../../../common/guards/hmac-signature.guard';
 
 /**
  * Webhook do iFood (multi-tenant).
@@ -10,6 +11,7 @@ import { TenantResolverService } from '../../tenancy/tenant-resolver.service';
  * grupo dentro do contexto RLS do seu tenant.
  */
 @Controller('ifood/webhook')
+@UseGuards(HmacSignatureGuard) // Só aceita POST assinado (HMAC-SHA256 do corpo).
 export class IfoodWebhookController {
   private readonly logger = new Logger(IfoodWebhookController.name);
 

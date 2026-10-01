@@ -10,6 +10,9 @@ dist/
 build/
 *.tsbuildinfo
 
+# Testes
+coverage/
+
 # Variáveis de Ambiente e Segredos (NUNCA SUBIR)
 .env
 .env.production
@@ -30,3 +33,5 @@ evolution_instances/
 Thumbs.db
 .vscode/
 .idea/
+# Backups do banco (gerados na VM)
+backups/

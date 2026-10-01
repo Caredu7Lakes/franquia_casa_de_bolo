@@ -53,7 +53,8 @@ services:
       - redis
       - evolution_api
     ports:
-      - '3000:3000'
+      # Exposto só no host (localhost) — o acesso público é via Caddy (HTTPS).
+      - '127.0.0.1:3000:3000'
     env_file:
       - .env
     environment:
@@ -61,7 +62,8 @@ services:
       - DB_HOST=postgres
       - DB_PORT=5432
       - DB_USER=casadobolo_app
-      - DB_PASS=k27RMlpAd7-YrwJ348ctipTFnGf6xFrc
+      # Senha do role de runtime — vem do .env (mesma usada pela migration RLS).
+      - DB_PASS=${APP_DB_PASSWORD}
       - DB_NAME=casadobolo_db
       - REDIS_HOST=redis
       - REDIS_PORT=6379
@@ -71,8 +73,49 @@ services:
       - CLOUDINARY_CLOUD_NAME=${CLOUDINARY_CLOUD_NAME}
       - CLOUDINARY_API_KEY=${CLOUDINARY_API_KEY}
       - CLOUDINARY_API_SECRET=${CLOUDINARY_API_SECRET}
+      # Mesmo segredo usado pelo relay para assinar os webhooks.
+      - WEBHOOK_HMAC_SECRET=${WEBHOOK_HMAC_SECRET}
+      - WEBHOOK_HMAC_HEADER=x-signature-256
+
+  # Relay de assinatura: a Evolution não assina os webhooks. Ela aponta para
+  # http://webhook_relay:3001/webhook; o relay calcula o HMAC do corpo e repassa
+  # ao backend com o header x-signature-256. Só na rede interna (sem portas pra fora).
+  webhook_relay:
+    build: ./relay
+    container_name: casadobolo_relay
+    restart: always
+    depends_on:
+      - backend
+    environment:
+      - PORT=3001
+      - UPSTREAM_URL=http://backend:3000
+      - WEBHOOK_HMAC_SECRET=${WEBHOOK_HMAC_SECRET}
+      - WEBHOOK_HMAC_HEADER=x-signature-256
+
+  # Reverse proxy público (HTTPS automático) + SPA do painel. Único serviço com
+  # portas públicas (80/443). Builda o frontend e serve os estáticos, termina o
+  # TLS e faz o proxy da API para o backend na rede interna.
+  caddy:
+    build:
+      context: .
+      dockerfile: caddy/Dockerfile
+    container_name: casadobolo_caddy
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - '80:80'
+      - '443:443'
+    environment:
+      - DOMAIN=${DOMAIN}
+      - ACME_EMAIL=${ACME_EMAIL}
+    volumes:
+      - caddy_data:/data
+      - caddy_config:/config
 
 volumes:
   pgdata:
   redisdata:
   evolution_instances:
+  caddy_data:
+  caddy_config:
