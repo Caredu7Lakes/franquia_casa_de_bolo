@@ -32,12 +32,13 @@ import { IfoodModule } from './modules/ifood/ifood.module';
       }),
       dataSourceFactory: async (options) => {
         if (!options) throw new Error('Opções do TypeORM ausentes');
+  
+        // Cria a instância do DataSource
         const dataSource = new DataSource(options);
-        try {
-          return await addTransactionalDataSource(dataSource).initialize();
-        } catch {
-          return dataSource.initialize();
-        }
+  
+       // Inicializa e depois passa para o transactional
+       await dataSource.initialize();
+       return addTransactionalDataSource(dataSource);
       },
     }),
     BullModule.forRootAsync({

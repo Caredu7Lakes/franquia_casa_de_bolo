@@ -9,11 +9,6 @@ async function bootstrap() {
   initializeTransactionalContext({ storageDriver: StorageDriver.ASYNC_LOCAL_STORAGE });
 
   const app = await NestFactory.create(AppModule);
-
-  // CORREÇÃO: adiciona o DataSource do TypeORM para que o typeorm-transactional saiba qual conexão usar.
-  const dataSource = app.get(DataSource);
-  addTransactionalDataSource(dataSource);
-
-  await app.listen(3000);
+   await app.listen(3000);
 }
 bootstrap();
