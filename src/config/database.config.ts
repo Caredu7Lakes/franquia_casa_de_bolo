@@ -9,5 +9,9 @@ export default registerAs('database', () => ({
   database: process.env.DB_NAME || 'casadobolo_db',
   entities: [__dirname + '/../**/*.entity{.ts,.js}'],
   subscribers: [__dirname + '/../**/*.subscriber{.ts,.js}'],
-  synchronize: true,
+  migrations: [__dirname + '/../migrations/*{.ts,.js}'],
+  // Schema agora é gerenciado por migrations, não por synchronize.
+  synchronize: false,
+  // Aplica migrations pendentes automaticamente no boot.
+  migrationsRun: true,
 }));

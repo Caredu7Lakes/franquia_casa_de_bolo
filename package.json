@@ -4,7 +4,13 @@
   "scripts": {
     "build": "tsc -p tsconfig.build.json",
     "start": "node dist/main.js",
-    "start:prod": "node dist/main.js"
+    "start:prod": "node dist/main.js",
+    "typeorm": "typeorm-ts-node-commonjs -d src/data-source.ts",
+    "migration:generate": "npm run typeorm -- migration:generate",
+    "migration:create": "typeorm-ts-node-commonjs migration:create",
+    "migration:run": "npm run typeorm -- migration:run",
+    "migration:revert": "npm run typeorm -- migration:revert",
+    "migration:show": "npm run typeorm -- migration:show"
   },
   "dependencies": {
     "@nestjs/bullmq": "^11.0.0",
@@ -37,6 +43,7 @@
     "@types/multer": "^2.2.0",
     "@types/node": "^26.6.2",
     "@types/passport-jwt": "^4.0.1",
+    "ts-node": "^10.9.2",
     "typescript": "^5.6.0"
   }
 }
