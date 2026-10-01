@@ -26,7 +26,8 @@ Backend **self-hosted** de atendimento no WhatsApp para confeitaria/padaria, sem
 | **Redis + BullMQ** | Filas de disparo assíncronas com rate limiting |
 | **Cloudinary** | Armazenamento das fotos do cardápio (URL pública) |
 | **JWT + Passport + bcrypt** | Autenticação do painel |
-| **Docker Compose** | Postgres + Redis + Evolution + backend |
+| **Caddy** | Reverse proxy com HTTPS automático (Let's Encrypt) |
+| **Docker Compose** | Postgres + Redis + Evolution + backend + relay + Caddy |
 
 ---
 
@@ -177,6 +178,24 @@ docker compose cp seed-products.js backend:/app/seed-products.js
 docker compose exec -T backend node /app/seed-products.js
 ```
 
+### 7. HTTPS (reverse proxy Caddy)
+O serviço **caddy** termina o TLS e repassa para o backend; o backend fica
+exposto só em `127.0.0.1`. Pré-requisitos:
+1. **Domínio** com registro **DNS A** apontando para o IP público da VM.
+2. Portas **80 e 443** abertas no **NSG do Azure** e no firewall da VM.
+3. `DOMAIN` e `ACME_EMAIL` definidos no `.env`.
+
+Subir:
+```bash
+docker compose up -d --build caddy
+```
+O Caddy obtém e renova o certificado do Let's Encrypt automaticamente. A partir
+daí o painel/API respondem em `https://SEU_DOMINIO` (o `http://` redireciona).
+Acompanhe a emissão do certificado:
+```bash
+docker compose logs -f caddy
+```
+
 ---
 
 ## ⚠️ Notas de operação e segurança
@@ -184,7 +203,7 @@ docker compose exec -T backend node /app/seed-products.js
 - **Risco de ban (Evolution/Baileys)**: use número dedicado, aqueça antes de disparar, mantenha os delays.
 - **Sessão do WhatsApp** pode cair (atualização/desconexão): monitore `connection.update` e releia o QR.
 - **iFood**: exige app de parceiro (CNPJ), homologação, autorização da loja e **webhook HTTPS**. O código está pronto; falta o credenciamento e o TLS.
-- **HTTPS**: obrigatório antes de uso real — dados de clientes não devem trafegar em texto puro.
+- **HTTPS**: via reverse proxy **Caddy** (TLS automático). Depende de domínio + DNS + portas 80/443 abertas. O backend não deve ser exposto sem TLS.
 - **Schema**: já em `synchronize: false` + migrations. Nunca ativar `synchronize` em produção (altera/dropa colunas com dado).
 
 ---
@@ -194,7 +213,7 @@ docker compose exec -T backend node /app/seed-products.js
 | # | Item | Status | Bloqueio / Próximo passo |
 | :-- | :--- | :--- | :--- |
 | 1 | **Chip do WhatsApp** | ⏳ Aguardando | O número dedicado ainda **não foi recebido**. Sem o chip não é possível parear a instância na Evolution (QR code), então o bot **grava no banco mas não responde** (erro 404 `instance does not exist` no `sendText`). Quando chegar: ativar o número num celular → `POST /instance/create` → ler o QR em `http://IP:8080/manager` (ou `/instance/connect/casa_do_bolo_instance`) → parear. |
-| 2 | **HTTPS / reverse proxy** | ⏳ Pendente | Obrigatório antes do uso real (dados de clientes). Configurar proxy reverso com TLS. |
+| 2 | **HTTPS / reverse proxy** | 🟡 Pronto, falta config | Reverse proxy **Caddy** implementado (TLS automático). Falta só o lado operacional: registrar o **domínio**, criar o **DNS A** para o IP da VM, abrir **80/443** no NSG e preencher `DOMAIN`/`ACME_EMAIL` no `.env`. |
 | 3 | **Credenciamento iFood** | ⏳ Pendente | Código pronto; falta app de parceiro (CNPJ), homologação, autorização da loja e webhook HTTPS. |
 | 4 | **99Food** | ⏳ Pendente | Link de pedido ainda não disponível (placeholder no menu). |
 
@@ -203,3 +222,4 @@ docker compose exec -T backend node /app/seed-products.js
 > - `TenantInterceptor` ativo globalmente — rotas do painel operam sob RLS.
 > - Webhooks protegidos por assinatura **HMAC-SHA256** do corpo.
 > - **webhook_relay** assina os webhooks da Evolution (que não assina nativamente) ponta a ponta.
+> - **HTTPS** via Caddy (reverse proxy com TLS automático); backend restrito a `127.0.0.1`.

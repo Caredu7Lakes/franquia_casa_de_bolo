@@ -1,0 +1,27 @@
+# Reverse proxy com HTTPS automático (Let's Encrypt).
+# DOMAIN e ACME_EMAIL vêm do ambiente (docker-compose → .env).
+#
+# O Caddy obtém e renova o certificado sozinho, desde que:
+#   - DOMAIN tenha um registro DNS A apontando para o IP público da VM;
+#   - as portas 80 e 443 estejam abertas (NSG do Azure + firewall da VM).
+# A porta 80 é usada no desafio ACME e redireciona para 443 automaticamente.
+
+{
+	email {$ACME_EMAIL}
+}
+
+{$DOMAIN} {
+	encode gzip
+
+	# API administrativa + webhooks (o backend valida JWT/HMAC internamente).
+	reverse_proxy backend:3000
+
+	# Cabeçalhos de segurança básicos.
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		X-Frame-Options "DENY"
+		Referrer-Policy "no-referrer"
+		-Server
+	}
+}

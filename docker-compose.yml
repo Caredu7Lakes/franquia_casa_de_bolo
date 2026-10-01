@@ -53,7 +53,8 @@ services:
       - redis
       - evolution_api
     ports:
-      - '3000:3000'
+      # Exposto só no host (localhost) — o acesso público é via Caddy (HTTPS).
+      - '127.0.0.1:3000:3000'
     env_file:
       - .env
     environment:
@@ -90,7 +91,28 @@ services:
       - WEBHOOK_HMAC_SECRET=${WEBHOOK_HMAC_SECRET}
       - WEBHOOK_HMAC_HEADER=x-signature-256
 
+  # Reverse proxy com HTTPS automático (Let's Encrypt). Único serviço com portas
+  # públicas (80/443). Termina o TLS e repassa para o backend na rede interna.
+  caddy:
+    image: caddy:2-alpine
+    container_name: casadobolo_caddy
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - '80:80'
+      - '443:443'
+    environment:
+      - DOMAIN=${DOMAIN}
+      - ACME_EMAIL=${ACME_EMAIL}
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+
 volumes:
   pgdata:
   redisdata:
   evolution_instances:
+  caddy_data:
+  caddy_config:
