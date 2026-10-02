@@ -1,4 +1,5 @@
 import { Injectable, Logger } from '@nestjs/common';
+import { AsyncLocalStorage } from 'async_hooks';
 import axios from 'axios';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -26,13 +27,45 @@ export class WhatsAppBotService {
   private readonly baseUrl = process.env.EVOLUTION_API_URL || 'http://localhost:8080';
   private readonly apiKey = process.env.EVOLUTION_API_KEY || '';
 
+  // Acumula métricas por interação (seguro sob concorrência via async context).
+  private readonly timing = new AsyncLocalStorage<{ calls: number; ms: number }>();
+
   constructor(
     @InjectRepository(Customer) private readonly customerRepo: Repository<Customer>,
     @InjectRepository(InteractionLog) private readonly logRepo: Repository<InteractionLog>,
     private readonly productsService: ProductsService,
   ) {}
 
+  /** Registra a duração de uma chamada à Evolution na interação atual. */
+  private recordEvo(kind: string, instance: string, ms: number, ok: boolean): void {
+    const store = this.timing.getStore();
+    if (store) {
+      store.calls += 1;
+      store.ms += ms;
+    }
+    this.logger.log(`Evolution ${kind} ${instance} ${ms}ms ${ok ? 'ok' : 'FALHA'}`);
+  }
+
+  /** Wrapper de instrumentação: mede o total da interação e o tempo gasto na Evolution. */
   async processMessage(body: any): Promise<void> {
+    return this.timing.run({ calls: 0, ms: 0 }, async () => {
+      const started = Date.now();
+      try {
+        await this.handle(body);
+      } finally {
+        const store = this.timing.getStore()!;
+        if (store.calls > 0) {
+          const total = Date.now() - started;
+          const from = (body?.data?.key?.remoteJid || '').split('@')[0];
+          this.logger.log(
+            `Interação ${from}: ${store.calls} msg Evolution em ${store.ms}ms (handler ${total}ms)`,
+          );
+        }
+      }
+    });
+  }
+
+  private async handle(body: any): Promise<void> {
     const message = body?.data;
     if (!message) return;
     if (message.key?.fromMe) return;
@@ -117,13 +150,16 @@ export class WhatsAppBotService {
   }
 
   private async sendText(instance: string, to: string, text: string): Promise<void> {
+    const t0 = Date.now();
     try {
       await axios.post(
         `${this.baseUrl}/message/sendText/${instance}`,
         { number: to, text, delay: 1000 },
         { headers: { apikey: this.apiKey, 'Content-Type': 'application/json' } },
       );
+      this.recordEvo('sendText', instance, Date.now() - t0, true);
     } catch (error: any) {
+      this.recordEvo('sendText', instance, Date.now() - t0, false);
       this.logger.error('Erro no sendText', error.response?.data || error.message);
     }
   }
@@ -134,13 +170,16 @@ export class WhatsAppBotService {
     if (!product.imageUrl) {
       return this.sendText(instance, to, caption);
     }
+    const t0 = Date.now();
     try {
       await axios.post(
         `${this.baseUrl}/message/sendMedia/${instance}`,
         { number: to, mediatype: 'image', media: product.imageUrl, caption },
         { headers: { apikey: this.apiKey, 'Content-Type': 'application/json' } },
       );
+      this.recordEvo('sendMedia', instance, Date.now() - t0, true);
     } catch (error: any) {
+      this.recordEvo('sendMedia', instance, Date.now() - t0, false);
       this.logger.error(`Erro no sendMedia (${product.name})`, error.response?.data || error.message);
     }
   }
