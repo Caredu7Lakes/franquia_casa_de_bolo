@@ -82,7 +82,7 @@ Login: `POST /auth/login` → retorna JWT (validade 12h). Enviar `Authorization:
 | :--- | :--- |
 | `POST /auth/login` | Aberto |
 | `GET` / `POST /users`, `PATCH` / `DELETE /users/:id` | **JWT (OWNER)** — gestão de usuários (trava do último OWNER) |
-| `GET /products` | Aberto (cardápio) |
+| `GET /products` | **JWT** (cardápio do tenant; o bot usa o serviço direto) |
 | `POST` / `PATCH /products/:id` | **JWT** |
 | `GET /customers`, `GET /customers/:id`, `PATCH /customers/:id` | **JWT** |
 | `GET /analytics/*` | **JWT** |
@@ -175,11 +175,13 @@ O relay assina o corpo (HMAC-SHA256) e repassa ao backend. Sem ele, a Evolution
 (que não assina) receberia `401` do `HmacSignatureGuard`.
 
 ### 6. Popular o cardápio
+Os arquivos já vão na imagem do backend. Com o tenant criado (Fase 1), rode:
 ```bash
-docker compose cp products.seed.json backend:/app/products.seed.json
-docker compose cp seed-products.js backend:/app/seed-products.js
 docker compose exec -T backend node /app/seed-products.js
 ```
+O seed resolve o tenant, seta o contexto RLS e insere os produtos. É idempotente:
+se já houver produtos, não duplica — use `SEED_FORCE=1` para limpar e recriar
+(`docker compose exec -T -e SEED_FORCE=1 backend node /app/seed-products.js`).
 
 ### 7. HTTPS (reverse proxy Caddy)
 O serviço **caddy** termina o TLS e repassa para o backend; o backend fica
