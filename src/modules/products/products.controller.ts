@@ -24,8 +24,11 @@ export class ProductsController {
     private readonly cloudinaryService: CloudinaryService,
   ) {}
 
-  // GET aberto: o cardápio é consumido pelo bot e não expõe dado sensível.
+  // Protegido por JWT: o painel lista o cardápio do tenant (o interceptor seta o
+  // contexto RLS). O bot NÃO usa esta rota — chama o ProductsService direto,
+  // dentro do contexto de tenant do webhook.
   @Get()
+  @UseGuards(JwtAuthGuard)
   async listProducts() {
     return this.productsService.findAll();
   }
