@@ -6,9 +6,12 @@ function makeQueryBuilder(result: any[]) {
     select: jest.fn().mockReturnThis(),
     addSelect: jest.fn().mockReturnThis(),
     where: jest.fn().mockReturnThis(),
+    andWhere: jest.fn().mockReturnThis(),
     groupBy: jest.fn().mockReturnThis(),
     orderBy: jest.fn().mockReturnThis(),
     getRawMany: jest.fn().mockResolvedValue(result),
+    getRawOne: jest.fn().mockResolvedValue(result[0] ?? {}),
+    getCount: jest.fn().mockResolvedValue(0),
   };
   return qb;
 }
@@ -16,9 +19,18 @@ function makeQueryBuilder(result: any[]) {
 function makeService(qbResult: any[] = [], customers: any[] = []) {
   const qb = makeQueryBuilder(qbResult);
   const logRepo = { createQueryBuilder: jest.fn().mockReturnValue(qb) };
-  const customerRepo = { find: jest.fn().mockResolvedValue(customers) };
-  const service = new OwnerAnalyticsService(logRepo as any, customerRepo as any);
-  return { service, logRepo, customerRepo, qb };
+  const customerRepo = {
+    find: jest.fn().mockResolvedValue(customers),
+    count: jest.fn().mockResolvedValue(0),
+    createQueryBuilder: jest.fn().mockReturnValue(qb),
+  };
+  // orderRepo: os specs atuais não exercem métodos de pedidos; stub cobre o 3º parâmetro.
+  const orderRepo = {
+    createQueryBuilder: jest.fn().mockReturnValue(qb),
+    query: jest.fn().mockResolvedValue([]),
+  };
+  const service = new OwnerAnalyticsService(logRepo as any, customerRepo as any, orderRepo as any);
+  return { service, logRepo, customerRepo, orderRepo, qb };
 }
 
 describe('OwnerAnalyticsService', () => {
