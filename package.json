@@ -19,11 +19,22 @@
     "preset": "ts-jest",
     "testEnvironment": "node",
     "rootDir": ".",
-    "roots": ["<rootDir>/src", "<rootDir>/test"],
+    "roots": [
+      "<rootDir>/src",
+      "<rootDir>/test"
+    ],
     "testRegex": ".*\\.spec\\.ts$",
-    "moduleFileExtensions": ["ts", "js", "json"],
-    "setupFiles": ["reflect-metadata"],
-    "collectCoverageFrom": ["src/**/*.(t|j)s"],
+    "moduleFileExtensions": [
+      "ts",
+      "js",
+      "json"
+    ],
+    "setupFiles": [
+      "reflect-metadata"
+    ],
+    "collectCoverageFrom": [
+      "src/**/*.(t|j)s"
+    ],
     "coverageDirectory": "coverage"
   },
   "dependencies": {
@@ -55,7 +66,7 @@
     "@nestjs/testing": "^11.0.0",
     "@types/bcryptjs": "^2.4.6",
     "@types/express": "^5.0.6",
-    "@types/jest": "^29.5.12",
+    "@types/jest": "^29.5.14",
     "@types/multer": "^2.2.0",
     "@types/node": "^26.6.2",
     "@types/passport-jwt": "^4.0.1",
