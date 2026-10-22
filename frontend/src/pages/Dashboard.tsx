@@ -113,6 +113,23 @@ export default function Dashboard() {
               )}
             </section>
           </div>
+                    <div className="mt-6">
+            <section className="card relative overflow-hidden opacity-75">
+              <span className="absolute right-4 top-4 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-700 ring-1 ring-amber-200">
+                Em breve
+              </span>
+              <h2 className="mb-2 font-semibold text-slate-700">Conversão — interações → pedidos</h2>
+              <p className="max-w-2xl text-sm text-slate-500">
+                Vai medir quantos clientes que conversaram com o bot fecharam pedido,
+                mostrando a eficácia do atendimento em gerar venda. Requer rastrear a
+                origem do pedido (atribuição) — em desenvolvimento.
+              </p>
+              <div className="mt-4 flex items-end gap-2">
+                <span className="text-3xl font-bold text-slate-300">—</span>
+                <span className="mb-1 text-sm text-slate-400">taxa de conversão</span>
+              </div>
+            </section>
+          </div>
         </>
       )}
     </div>
