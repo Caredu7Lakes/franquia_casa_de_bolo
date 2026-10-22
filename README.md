@@ -232,3 +232,74 @@ O código do painel fica em [`frontend/`](./frontend/README.md) (dev: `npm run d
 > - **HTTPS** via Caddy (reverse proxy com TLS automático); backend restrito a `127.0.0.1`.
 > - **Painel administrativo** (React/Vite/Tailwind) servido pelo Caddy: dashboard, produtos, clientes e marketing.
 > - **Testes** unitários (Jest) do bot e do analytics.
+
+## ⚠️ Dívida técnica — correções exigidas para operação SaaS
+
+Itens levantados em auditoria. Em loja única funcionam; num SaaS multi-tenant
+são falhas que precisam ser corrigidas antes de escalar.
+
+### Segurança
+
+1. **Senha do Postgres hardcoded no docker-compose** (`POSTGRES_PASSWORD: casadobolo_pass`,
+   e a mesma na `DATABASE_CONNECTION_URI` da Evolution). Está versionada e é fraca.
+   **Correção:** mover para `.env` (`${DB_PASSWORD}`), gerar senha forte, rotacionar.
+
+2. **Porta 8080 da Evolution publicada** (`ports: ['8080:8080']` no compose). O manager
+   do WhatsApp fica exposto na internet se o firewall abrir. Hoje só o SG a protege —
+   defesa única.
+   **Correção:** `127.0.0.1:8080:8080` (ou sem publish) e acesso ao manager via túnel SSH.
+
+3. **Senha do role de runtime interpolada por string na migration**
+   (`CREATE ROLE casadobolo_app LOGIN PASSWORD '${appPassword}'`). Quebra com caracteres
+   especiais e é má prática de DDL.
+   **Correção:** usar `format('... PASSWORD %L', appPassword)` para escapar com segurança.
+
+4. **Segredos geridos à mão** — `.env` montado por SSH na VM, sem gerenciador. Se a VM
+   morre, os segredos se perdem; não há rotação nem auditoria.
+   **Correção:** AWS SSM Parameter Store / Secrets Manager; a VM lê de lá no boot.
+
+5. **Cardápio público single-tenant** — `GET /products` (sem auth) resolve um tenant fixo
+   pela instância Evolution do `.env`. Funciona com uma loja; com várias, expõe/mistura
+   cardápio do tenant errado.
+   **Correção:** resolver o tenant por contexto (subdomínio, query validado) ou tornar
+   a rota autenticada por loja. Rota pública não pode assumir tenant único.
+
+### Arquitetura
+
+6. **Deploy manual sem artefato versionado** — deploy é SSH + `git pull` + `docker build`
+   na VM de produção. Consequências: o **artefato testado no CI ≠ o servido** (builds
+   diferentes, máquinas diferentes); build consome RAM/CPU do servidor de produção;
+   sem rollback; sem rastro.
+   **Correção (direção madura):** CI builda e testa as imagens → publica em registry
+   (GHCR/ECR) com **tag de versão** (não `latest`) → VM faz `docker compose pull` da
+   imagem exata que passou no CI. Rollback = apontar para a tag anterior.
+
+7. **Frontend compilado dentro da imagem do Caddy** — mistura responsabilidades (proxy
+   que também builda React) e obriga rebuild do Caddy a cada mudança de tela.
+   **Correção:** build do SPA em estágio/pipeline separado; Caddy apenas serve estáticos
+   prontos.
+
+8. **Workers BullMQ rodam fora do contexto RLS** — não têm request/JWT, logo não setam
+   `app.current_tenant`. Qualquer escrita futura de worker em tabela com RLS falha (42501).
+   **Correção:** expor `runForTenant(tenantId, work)` público no `TenantResolverService`;
+   carregar `tenantId` no job e envolver a escrita nesse contexto. (Bloqueia o módulo de
+   persistência de campanha.)
+
+### Boas práticas
+
+9. **Scripts operacionais precisam setar o tenant** — `seed-products.js` falhava sob RLS
+   por não setar `app.current_tenant`. Já corrigido; padronizar: todo script que conecta
+   como `casadobolo_app` deve setar o tenant da sessão antes de escrever.
+
+10. **`migrate-phase2.js` sem normalização de e-mail** — permitiu dois OWNERs com e-mails
+    quase idênticos, causando confusão de login. Reset de senha também não tem fluxo
+    próprio (foi feito por UPDATE direto no banco).
+    **Correção:** normalizar e-mail (lowercase/trim), e um comando dedicado de reset de senha.
+
+### Capacidades ainda não modeladas (placeholders no dashboard)
+
+- **Conversão (interações → pedidos):** exige atribuição no schema (marcar origem do
+  pedido). Sem isso, qualquer taxa é inválida. Card está como "Em breve".
+- **Marketing (resultado de campanha):** exige persistir cada disparo
+  (`CampaignDispatch` + migration RLS + instrumentação do worker — ver item 8). Card
+  está como "Em breve".
