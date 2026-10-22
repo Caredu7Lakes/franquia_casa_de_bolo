@@ -5,9 +5,10 @@ import { ProductsService } from './products.service';
 import { ProductsController } from './products.controller';
 import { CloudinaryService } from './cloudinary/cloudinary.service';
 import { CloudinaryProvider } from './cloudinary/cloudinary.provider';
+import { TenancyModule } from '../tenancy/tenancy.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Product])],
+  imports: [TypeOrmModule.forFeature([Product]), TenancyModule],
   controllers: [ProductsController],
   providers: [ProductsService, CloudinaryService, CloudinaryProvider],
   exports: [ProductsService],
