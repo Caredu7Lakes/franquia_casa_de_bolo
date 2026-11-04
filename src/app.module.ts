@@ -18,6 +18,7 @@ import { MarketingModule } from './modules/marketing/marketing.module';
 import { ProductsModule } from './modules/products/products.module';
 import { IfoodModule } from './modules/ifood/ifood.module';
 import { OperationalNoticesModule } from './modules/operational-notices/operational-notices.module';
+import { HealthModule } from './health/health.module';
 
 @Module({
   imports: [
@@ -33,13 +34,9 @@ import { OperationalNoticesModule } from './modules/operational-notices/operatio
       }),
       dataSourceFactory: async (options) => {
         if (!options) throw new Error('Opções do TypeORM ausentes');
-  
-        // Cria a instância do DataSource
         const dataSource = new DataSource(options);
-  
-       // Inicializa e depois passa para o transactional
-       await dataSource.initialize();
-       return addTransactionalDataSource(dataSource);
+        await dataSource.initialize();
+        return addTransactionalDataSource(dataSource);
       },
     }),
     BullModule.forRootAsync({
@@ -61,6 +58,7 @@ import { OperationalNoticesModule } from './modules/operational-notices/operatio
     ProductsModule,
     IfoodModule,
     OperationalNoticesModule,
+    HealthModule,
   ],
 })
 export class AppModule {}
