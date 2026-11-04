@@ -31,6 +31,12 @@ export class ProductsService {
     return this.productRepo.find({ where: { available: true, category } });
   }
 
+  // Destaques do dia: disponíveis e marcados como featured. Já roda sob o
+  // contexto RLS do tenant (chamado de dentro de runForInstance, no bot).
+  async findFeatured(): Promise<Product[]> {
+    return this.productRepo.find({ where: { available: true, featured: true } });
+  }
+
   async update(id: string, data: Partial<Product>): Promise<Product> {
     const product = await this.productRepo.findOne({ where: { id } });
     if (!product) throw new NotFoundException('Produto não encontrado.');

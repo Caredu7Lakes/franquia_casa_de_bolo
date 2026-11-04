@@ -67,7 +67,7 @@ export class ProductsController {
     });
   }
 
-  // Editar produto existente (preço, foto, disponibilidade) — protegido.
+  // Editar produto existente (preço, foto, disponibilidade, destaque) — protegido.
   // Aceita foto opcional: se vier arquivo, sobe pro Cloudinary e atualiza a URL.
   @Patch(':id')
   @UseGuards(JwtAuthGuard)
@@ -75,12 +75,13 @@ export class ProductsController {
   async updateProduct(
     @Param('id') id: string,
     @UploadedFile() file: Express.Multer.File,
-    @Body() body: { price?: string; description?: string; available?: string; category?: ProductCategory },
+    @Body() body: { price?: string; description?: string; available?: string; featured?: string; category?: ProductCategory },
   ) {
     const data: any = {};
     if (body.price != null && body.price !== '') data.price = parseFloat(body.price);
     if (body.description != null) data.description = body.description;
     if (body.available != null) data.available = body.available === 'true';
+    if (body.featured != null) data.featured = body.featured === 'true';
     if (body.category) data.category = body.category;
     if (file) {
       const upload = await this.cloudinaryService.uploadImage(file);

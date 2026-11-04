@@ -20,6 +20,9 @@ const CATEGORY_MENU: { key: string; category: ProductCategory; label: string }[]
   { key: '10', category: ProductCategory.ACESSORIOS, label: 'Acessórios' },
 ];
 
+const IFOOD_URL =
+  'https://www.ifood.com.br/delivery/sao-paulo-sp/casa-de-bolos-sao-lucas-parque-sao-lucas/b9189dac-ede3-4050-ba41-eb3e7954d790';
+
 @Injectable()
 export class WhatsAppBotService {
   private readonly logger = new Logger(WhatsAppBotService.name);
@@ -45,9 +48,10 @@ export class WhatsAppBotService {
     const instance: string = body?.instance;
     const name = message.pushName || 'Cliente';
     const text = this.extractText(message);
-    const customer = await this.findOrCreateCustomer(from, name);
+    const { customer, isNew } = await this.findOrCreateCustomer(from, name);
     const normalized = text.trim().toLowerCase();
 
+    // Opt-in: processado sempre que o cliente responde sim/não.
     if (normalized === 'sim' || normalized.includes('promocao_sim')) {
       await this.saveOptIn(customer, true);
       await this.logInteraction(customer, 'OPTIN_SIM', text);
@@ -57,6 +61,13 @@ export class WhatsAppBotService {
       await this.saveOptIn(customer, false);
       await this.logInteraction(customer, 'OPTIN_NAO', text);
       return this.sendText(instance, from, 'Tudo bem! Sempre que precisar, é só chamar! 🍰');
+    }
+
+    // Primeiro contato: boas-vindas com nome, aviso de privacidade, destaques,
+    // CTA de pedido e convite de opt-in (só aqui e enquanto não respondeu).
+    if (isNew) {
+      await this.logInteraction(customer, 'WELCOME', text);
+      return this.sendWelcome(instance, from, customer);
     }
 
     const catItem = CATEGORY_MENU.find((c) => c.key === normalized);
@@ -70,12 +81,7 @@ export class WhatsAppBotService {
       case 'pedidos':
       case 'p':
         await this.logInteraction(customer, 'PEDIDOS', text);
-        return this.sendText(
-          instance, from,
-          '🛍️ *Fazer Pedido*\n\nPeça pelos nossos parceiros:\n\n' +
-            '🔴 *iFood:*\nhttps://www.ifood.com.br/delivery/sao-paulo-sp/casa-de-bolos-sao-lucas-parque-sao-lucas/b9189dac-ede3-4050-ba41-eb3e7954d790\n\n' +
-            '🟡 *99Food:*\n(link em breve)',
-        );
+        return this.sendOrderLinks(instance, from);
       case 'duvidas':
       case 'dúvidas':
       case 'd':
@@ -83,14 +89,57 @@ export class WhatsAppBotService {
         return this.sendFaqMenu(instance, from);
       default:
         await this.logInteraction(customer, 'MAIN_MENU', text);
-        return this.sendMainMenu(instance, from);
+        return this.sendMainMenu(instance, from, customer);
     }
   }
 
-  private async sendMainMenu(instance: string, to: string): Promise<void> {
+  // Boas-vindas de primeiro contato: saudação + transparência (LGPD art. 9) +
+  // destaques do dia + CTA de pedido + convite de opt-in se ainda pendente.
+  private async sendWelcome(instance: string, to: string, customer: Customer): Promise<void> {
+    const primeiroNome = (customer.name || 'tudo bem').split(' ')[0];
+    await this.sendText(
+      instance, to,
+      `Oi, ${primeiroNome}! 🍰 Seja bem-vindo(a) à *Casa do Bolo*.\n\n` +
+        `Por aqui você vê nosso cardápio e faz pedidos. Usamos seus dados só para te atender e, com seu aceite, enviar ofertas — ` +
+        `você pode pedir para ver ou apagar seus dados quando quiser.`,
+    );
+
+    await this.sendFeatured(instance, to);
+    await this.sendMainMenu(instance, to, customer);
+    await this.sendOrderLinks(instance, to);
+
+    // Convite de opt-in só se o cliente ainda não respondeu sim/não.
+    if (customer.opt_in_updated_at == null) {
+      await this.sendText(
+        instance, to,
+        `Quer receber nossas *ofertas e cupons* por aqui? Responda *SIM* ou *NÃO*. 💌`,
+      );
+    }
+  }
+
+  private async sendFeatured(instance: string, to: string): Promise<void> {
+    const featured = await this.productsService.findFeatured();
+    if (!featured.length) return;
+    await this.sendText(instance, to, `✨ *Destaques de hoje* ✨`);
+    for (const product of featured) {
+      await this.sendProductMedia(instance, to, product);
+    }
+  }
+
+  private async sendOrderLinks(instance: string, to: string): Promise<void> {
+    await this.sendText(
+      instance, to,
+      '🛍️ *Fazer Pedido*\n\nPeça direto pelos nossos parceiros:\n\n' +
+        `🔴 *iFood:*\n${IFOOD_URL}\n\n` +
+        '🟡 *99Food:*\n(link em breve)',
+    );
+  }
+
+  private async sendMainMenu(instance: string, to: string, customer?: Customer): Promise<void> {
     const linhas = CATEGORY_MENU.map((c) => `*${c.key}* — ${c.label}`).join('\n');
+    const saudacao = customer?.name ? `🍰 *Casa do Bolo* — oi, ${customer.name.split(' ')[0]}! 🍰` : `🍰 *Casa do Bolo* 🍰`;
     const text =
-      `🍰 *Casa do Bolo* 🍰\n\n` +
+      `${saudacao}\n\n` +
       `Responda com o *número* da categoria do cardápio:\n\n` +
       `${linhas}\n\n` +
       `Ou digite:\n*P* — Fazer pedido 🛍️\n*D* — Dúvidas e horários ❓`;
@@ -145,14 +194,16 @@ export class WhatsAppBotService {
     }
   }
 
-  private async findOrCreateCustomer(phone: string, name: string): Promise<Customer> {
+  // Retorna o cliente e se ele acabou de ser criado (primeiro contato).
+  private async findOrCreateCustomer(phone: string, name: string): Promise<{ customer: Customer; isNew: boolean }> {
     // Sob RLS, a busca já é restrita ao tenant atual automaticamente.
     let customer = await this.customerRepo.findOne({ where: { phone_number: phone } });
-    if (!customer) {
-      customer = this.customerRepo.create({ phone_number: phone, name });
-      await this.customerRepo.save(customer);
+    if (customer) {
+      return { customer, isNew: false };
     }
-    return customer;
+    customer = this.customerRepo.create({ phone_number: phone, name });
+    await this.customerRepo.save(customer);
+    return { customer, isNew: true };
   }
 
   private async saveOptIn(customer: Customer, status: boolean): Promise<void> {

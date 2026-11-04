@@ -10,6 +10,7 @@ type Product = {
   category: string;
   imageUrl?: string;
   available?: boolean;
+  featured?: boolean;
 };
 
 export default function Products() {
@@ -62,13 +63,18 @@ export default function Products() {
               )}
               <div className="flex items-start justify-between gap-2">
                 <h3 className="font-semibold text-slate-800">{p.name}</h3>
-                <span
-                  className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${
-                    p.available === false ? 'bg-slate-100 text-slate-500' : 'bg-green-100 text-green-700'
-                  }`}
-                >
-                  {p.available === false ? 'Indisponível' : 'Disponível'}
-                </span>
+                <div className="flex shrink-0 gap-1">
+                  {p.featured && (
+                    <span className="rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700">★ Destaque</span>
+                  )}
+                  <span
+                    className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                      p.available === false ? 'bg-slate-100 text-slate-500' : 'bg-green-100 text-green-700'
+                    }`}
+                  >
+                    {p.available === false ? 'Indisponível' : 'Disponível'}
+                  </span>
+                </div>
               </div>
               <p className="mt-1 text-xs text-slate-400">{categoryLabel(p.category)}</p>
               {p.description && <p className="mt-1 line-clamp-2 text-sm text-slate-500">{p.description}</p>}
@@ -130,6 +136,7 @@ function ProductModal({
   const [price, setPrice] = useState(product?.price != null ? String(product.price) : '');
   const [category, setCategory] = useState(product?.category ?? PRODUCT_CATEGORIES[0].value);
   const [available, setAvailable] = useState(product?.available !== false);
+  const [featured, setFeatured] = useState(product?.featured === true);
   const [file, setFile] = useState<File | null>(null);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -149,6 +156,7 @@ function ProductModal({
     if (price !== '') form.append('price', price);
     form.append('category', category);
     if (isEdit) form.append('available', String(available));
+    if (isEdit) form.append('featured', String(featured));
     if (file) form.append('file', file);
 
     setSaving(true);
@@ -203,10 +211,16 @@ function ProductModal({
         </div>
 
         {isEdit && (
-          <label className="mb-3 flex items-center gap-2 text-sm text-slate-700">
-            <input type="checkbox" checked={available} onChange={(e) => setAvailable(e.target.checked)} />
-            Disponível no cardápio
-          </label>
+          <div className="mb-3 space-y-2">
+            <label className="flex items-center gap-2 text-sm text-slate-700">
+              <input type="checkbox" checked={available} onChange={(e) => setAvailable(e.target.checked)} />
+              Disponível no cardápio
+            </label>
+            <label className="flex items-center gap-2 text-sm text-slate-700">
+              <input type="checkbox" checked={featured} onChange={(e) => setFeatured(e.target.checked)} />
+              Destaque do dia (aparece nas boas-vindas do bot)
+            </label>
+          </div>
         )}
 
         <div className="mb-5">

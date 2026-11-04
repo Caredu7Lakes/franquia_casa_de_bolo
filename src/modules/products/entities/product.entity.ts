@@ -42,6 +42,10 @@ export class Product {
   @Column({ default: true })
   available!: boolean;
 
+  // Destaque do dia / promoção — curadoria do dono pelo painel.
+  @Column({ default: false })
+  featured!: boolean;
+
   @CreateDateColumn()
   created_at!: Date;
 
