@@ -18,10 +18,18 @@ type Mocked = {
   customer: any;
 };
 
+// Por padrão o cliente mockado JÁ respondeu o opt-in (opt_in_updated_at setado),
+// para os testes de fluxo normal não caírem no convite/re-ask do fluxo B.
 function makeService(existingCustomer: any = undefined): Mocked {
   const customer =
     existingCustomer === undefined
-      ? { id: 'c1', phone_number: '5511999999999', name: 'Teste', opt_in_promotions: false }
+      ? {
+          id: 'c1',
+          phone_number: '5511999999999',
+          name: 'Teste',
+          opt_in_promotions: false,
+          opt_in_updated_at: new Date(),
+        }
       : existingCustomer;
 
   const customerRepo = {
@@ -32,9 +40,11 @@ function makeService(existingCustomer: any = undefined): Mocked {
   const logRepo = {
     create: jest.fn((d: any) => d),
     save: jest.fn(async (d: any) => d),
+    count: jest.fn().mockResolvedValue(0),
   };
   const productsService = {
     findAvailableByCategory: jest.fn().mockResolvedValue([]),
+    findFeatured: jest.fn().mockResolvedValue([]),
   };
 
   const service = new WhatsAppBotService(
@@ -139,14 +149,36 @@ describe('WhatsAppBotService.processMessage', () => {
     expect(mockedAxios.post).toHaveBeenCalled();
   });
 
-  it('cria o cliente quando ele ainda não existe', async () => {
-    const { service, customerRepo } = makeService(null); // findOne → null
-    await service.processMessage(body('qualquer'));
+  it('cria o cliente quando ele ainda não existe e envia boas-vindas (WELCOME)', async () => {
+    const { service, customerRepo, logRepo } = makeService(null); // findOne → null
+    await service.processMessage(body('oi'));
 
     expect(customerRepo.create).toHaveBeenCalledWith(
       expect.objectContaining({ phone_number: '5511999999999', name: 'Teste' }),
     );
     expect(customerRepo.save).toHaveBeenCalled();
+    // Fluxo B: primeiro contato registra WELCOME, não MAIN_MENU.
+    expect(logRepo.create).toHaveBeenCalledWith(
+      expect.objectContaining({ menuOption: 'WELCOME' }),
+    );
+  });
+
+  it('cliente que ainda não respondeu opt-in recebe o re-convite (OPTIN_REASK) na 1a vez', async () => {
+    const semOptIn = {
+      id: 'c2',
+      phone_number: '5511999999999',
+      name: 'Teste',
+      opt_in_promotions: false,
+      opt_in_updated_at: null, // nunca respondeu
+    };
+    const { service, logRepo } = makeService(semOptIn);
+    logRepo.count.mockResolvedValue(0); // ainda não foi re-perguntado
+
+    await service.processMessage(body('1')); // manda outra coisa, não sim/não
+
+    expect(logRepo.create).toHaveBeenCalledWith(
+      expect.objectContaining({ menuOption: 'OPTIN_REASK' }),
+    );
   });
 
   it('não propaga erro da Evolution (sendText) — o try/catch interno protege o fluxo', async () => {
