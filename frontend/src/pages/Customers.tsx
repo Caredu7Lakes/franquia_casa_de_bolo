@@ -111,6 +111,33 @@ export default function Customers() {
 }
 
 function CustomerDrawer({ id, onClose, onSaved }: { id: string; onClose: () => void; onSaved: () => void }) {
+  async function exportData() {
+    setError('');
+    try {
+      const { data } = await api.get(`/customers/${id}/export`);
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `cliente-${id}.json`;
+      link.click();
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      setError(apiError(e, 'Falha ao exportar os dados.'));
+    }
+  }
+
+  async function anonymize() {
+    if (!window.confirm('Anonimizar este titular? Remove nome, telefone, e-mail, endereco e mensagens. Irreversivel (direito de exclusao - LGPD).')) return;
+    setError('');
+    try {
+      await api.post(`/customers/${id}/anonymize`);
+      onSaved();
+      onClose();
+    } catch (e) {
+      setError(apiError(e, 'Falha ao anonimizar.'));
+    }
+  }
   const [c, setC] = useState<FullCustomer | null>(null);
   const [error, setError] = useState('');
   const [tags, setTags] = useState('');
@@ -187,6 +214,13 @@ function CustomerDrawer({ id, onClose, onSaved }: { id: string; onClose: () => v
               <input className="input" type="number" min="0" max="10" value={nps} onChange={(e) => setNps(e.target.value)} />
             </div>
 
+            <div className="mb-4 border-t border-slate-200 pt-4">
+              <h3 className="mb-2 font-semibold text-slate-700">Dados do titular (LGPD)</h3>
+              <div className="flex gap-2">
+                <button className="btn-ghost flex-1" onClick={exportData}>Exportar dados</button>
+                <button className="flex-1 rounded-lg px-3 py-2 text-sm font-medium text-red-700 ring-1 ring-red-200 hover:bg-red-50" onClick={anonymize}>Anonimizar</button>
+              </div>
+            </div>
             <button className="btn-primary w-full" onClick={save} disabled={saving}>
               {saving ? 'Salvandoâ€¦' : 'Salvar alteraÃ§Ãµes'}
             </button>
