@@ -1,7 +1,9 @@
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { clearToken, getTokenPayload } from '../auth/auth';
 
-const baseNav = [
+type NavItem = { to: string; label: string; icon: string; end?: boolean };
+
+const baseNav: NavItem[] = [
   { to: '/', label: 'Dashboard', end: true, icon: '📊' },
   { to: '/produtos', label: 'Produtos', icon: '🍰' },
   { to: '/clientes', label: 'Clientes', icon: '👥' },
@@ -9,7 +11,7 @@ const baseNav = [
 ];
 
 // Itens só do OWNER.
-const ownerNav = [
+const ownerNav: NavItem[] = [
   { to: '/avisos', label: 'Avisos', icon: '📢' },
   { to: '/usuarios', label: 'Usuários', icon: '🔑' },
 ];
