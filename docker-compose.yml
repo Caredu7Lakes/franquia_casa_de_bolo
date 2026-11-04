@@ -28,7 +28,7 @@ services:
       - postgres
       - redis
     ports:
-      - '8080:8080'
+      - '127.0.0.1:8080:8080'  # so localhost; QR via tunel SSH
     environment:
       - SERVER_URL=http://evolution_api:8080
       - AUTHENTICATION_TYPE=apikey
