@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+﻿import { Injectable } from '@nestjs/common';
 import { InjectQueue } from '@nestjs/bullmq';
 import { Queue } from 'bullmq';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -18,7 +18,7 @@ export class BulkDispatchService {
     onlyOptIn?: boolean;
     delayBetweenMessagesMs?: number;
   }) {
-    const whereClause = options.onlyOptIn ? { opt_in_promotions: true } : {};
+    const whereClause = options.onlyOptIn === false ? {} : { opt_in_promotions: true };
     const customers = await this.customerRepo.find({ where: whereClause });
 
     const baseDelay = options.delayBetweenMessagesMs || 8000;
@@ -26,7 +26,7 @@ export class BulkDispatchService {
     for (let index = 0; index < customers.length; index++) {
       const customer = customers[index];
 
-      // Delay progressivo + jitter para espaçar os envios (anti-ban).
+      // Delay progressivo + jitter para espaÃ§ar os envios (anti-ban).
       const jitter = Math.floor(Math.random() * 3000);
       const calculatedDelay = index * baseDelay + jitter;
 
@@ -40,7 +40,7 @@ export class BulkDispatchService {
         {
           delay: calculatedDelay,
           attempts: 3,
-          // BullMQ: backoff é objeto { type, delay }, não número.
+          // BullMQ: backoff Ã© objeto { type, delay }, nÃ£o nÃºmero.
           backoff: { type: 'fixed', delay: 10000 },
           removeOnComplete: true,
           removeOnFail: false,
