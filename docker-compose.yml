@@ -153,8 +153,10 @@ services:
       - caddy_data:/data
       - caddy_config:/config
     healthcheck:
-      # Caddy responde na 80 (redireciona p/ 443); 2019 é o admin. Checa a 80.
-      test: ["CMD-SHELL", "wget -q -O- http://localhost:80/ >/dev/null 2>&1 || exit 1"]
+      # A :80 devolve 308 (redirect p/ HTTPS) e o admin :2019 não está exposto,
+      # então checamos só se a porta 80 aceita conexão (processo vivo), sem
+      # seguir o redirect nem tocar no TLS. nc existe no caddy:2-alpine.
+      test: ["CMD-SHELL", "nc -z localhost 80 || exit 1"]
       interval: 30s
       timeout: 5s
       retries: 3
