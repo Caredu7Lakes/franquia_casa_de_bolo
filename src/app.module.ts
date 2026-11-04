@@ -2,12 +2,14 @@ import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { BullModule } from '@nestjs/bullmq';
+import { LoggerModule } from 'nestjs-pino';
 import { DataSource } from 'typeorm';
 import { addTransactionalDataSource } from 'typeorm-transactional';
 
 import databaseConfig from './config/database.config';
 import redisConfig from './config/redis.config';
 import whatsappConfig from './config/whatsapp.config';
+import { loggerConfig } from './config/logger.config';
 
 import { TenancyModule } from './modules/tenancy/tenancy.module';
 import { AuthModule } from './modules/auth/auth.module';
@@ -26,6 +28,7 @@ import { HealthModule } from './health/health.module';
       isGlobal: true,
       load: [databaseConfig, redisConfig, whatsappConfig],
     }),
+    LoggerModule.forRoot(loggerConfig),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],

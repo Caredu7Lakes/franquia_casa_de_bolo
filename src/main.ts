@@ -1,7 +1,7 @@
 import 'reflect-metadata';
-import { initializeTransactionalContext, StorageDriver, addTransactionalDataSource } from 'typeorm-transactional';
+import { initializeTransactionalContext, StorageDriver } from 'typeorm-transactional';
 import { NestFactory } from '@nestjs/core';
-import { DataSource } from 'typeorm'; // 1. Importe o DataSource
+import { Logger } from 'nestjs-pino';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -10,7 +10,13 @@ async function bootstrap() {
 
   // rawBody: true preserva o corpo cru em req.rawBody — necessário para o
   // HmacSignatureGuard recalcular a assinatura sobre os bytes originais.
-  const app = await NestFactory.create(AppModule, { rawBody: true });
-   await app.listen(3000);
+  // bufferLogs: true segura os logs até o logger (pino) estar pronto.
+  const app = await NestFactory.create(AppModule, { rawBody: true, bufferLogs: true });
+
+  // Substitui o logger padrão do Nest pelo pino (JSON estruturado no stdout).
+  // Os `new Logger(...)` espalhados pelo código passam a sair em JSON sem alteração.
+  app.useLogger(app.get(Logger));
+
+  await app.listen(3000);
 }
 bootstrap();

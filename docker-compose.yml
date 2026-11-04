@@ -82,6 +82,8 @@ services:
     env_file:
       - .env
     environment:
+      # Produção: pino emite JSON puro no stdout (sem pino-pretty, que é só dev).
+      - NODE_ENV=production
       # Nomes de serviço da rede docker, não localhost.
       - DB_HOST=postgres
       - DB_PORT=5432
