@@ -51,25 +51,45 @@ export class WhatsAppBotService {
     const { customer, isNew } = await this.findOrCreateCustomer(from, name);
     const normalized = text.trim().toLowerCase();
 
-    // Opt-in: processado sempre que o cliente responde sim/não.
+    // "Aguardando opt-in" = cliente ainda não respondeu sim/não (opt_in_updated_at nulo).
+    const awaitingOptIn = customer.opt_in_updated_at == null;
+
+    // 1) Resposta de opt-in. Se é a primeira vez que o cliente decide, logo após
+    //    agradecer já enviamos a vitrine completa (destaques + menu + pedido).
     if (normalized === 'sim' || normalized.includes('promocao_sim')) {
       await this.saveOptIn(customer, true);
       await this.logInteraction(customer, 'OPTIN_SIM', text);
-      return this.sendText(instance, from, 'Perfeito! 🎉 Agora você receberá nossas ofertas e cupons exclusivos.');
+      await this.sendText(instance, from, 'Perfeito! 🎉 Você vai receber nossas ofertas e cupons exclusivos.');
+      if (awaitingOptIn) await this.sendShowcase(instance, from, customer);
+      return;
     }
     if (normalized === 'não' || normalized === 'nao' || normalized.includes('promocao_nao')) {
       await this.saveOptIn(customer, false);
       await this.logInteraction(customer, 'OPTIN_NAO', text);
-      return this.sendText(instance, from, 'Tudo bem! Sempre que precisar, é só chamar! 🍰');
+      await this.sendText(instance, from, 'Tudo bem, sem ofertas! 🍰 Vamos ao que interessa:');
+      if (awaitingOptIn) await this.sendShowcase(instance, from, customer);
+      return;
     }
 
-    // Primeiro contato: boas-vindas com nome, aviso de privacidade, destaques,
-    // CTA de pedido e convite de opt-in (só aqui e enquanto não respondeu).
+    // 2) Primeiro contato: boas-vindas + privacidade + pergunta de opt-in, e PARA.
     if (isNew) {
       await this.logInteraction(customer, 'WELCOME', text);
       return this.sendWelcome(instance, from, customer);
     }
 
+    // 3) Cliente já existe mas nunca respondeu e mandou outra coisa: repete a
+    //    pergunta UMA vez; nas vezes seguintes segue o fluxo normal (não trava).
+    if (awaitingOptIn) {
+      const alreadyAsked = await this.logRepo.count({
+        where: { customer: { id: customer.id }, menuOption: 'OPTIN_REASK' },
+      });
+      if (alreadyAsked === 0) {
+        await this.logInteraction(customer, 'OPTIN_REASK', text);
+        return this.sendOptInInvite(instance, from);
+      }
+    }
+
+    // 4) Fluxo normal (cliente recorrente ou que já passou do opt-in).
     const catItem = CATEGORY_MENU.find((c) => c.key === normalized);
     if (catItem) {
       await this.logInteraction(customer, `CAT_${catItem.category}`, text);
@@ -93,8 +113,8 @@ export class WhatsAppBotService {
     }
   }
 
-  // Boas-vindas de primeiro contato: saudação + transparência (LGPD art. 9) +
-  // destaques do dia + CTA de pedido + convite de opt-in se ainda pendente.
+  // Primeiro contato (fluxo B): saudação + transparência (LGPD art. 9) e a
+  // pergunta de opt-in — e PARA. A vitrine só vai após o cliente responder.
   private async sendWelcome(instance: string, to: string, customer: Customer): Promise<void> {
     const primeiroNome = (customer.name || 'tudo bem').split(' ')[0];
     await this.sendText(
@@ -103,18 +123,21 @@ export class WhatsAppBotService {
         `Por aqui você vê nosso cardápio e faz pedidos. Usamos seus dados só para te atender e, com seu aceite, enviar ofertas — ` +
         `você pode pedir para ver ou apagar seus dados quando quiser.`,
     );
+    await this.sendOptInInvite(instance, to);
+  }
 
+  private async sendOptInInvite(instance: string, to: string): Promise<void> {
+    await this.sendText(
+      instance, to,
+      `Antes de começar: quer receber nossas *ofertas e cupons* por aqui?\nResponda *SIM* ou *NÃO*. 💌`,
+    );
+  }
+
+  // Vitrine enviada logo após a resposta de opt-in: destaques + menu + pedido.
+  private async sendShowcase(instance: string, to: string, customer: Customer): Promise<void> {
     await this.sendFeatured(instance, to);
     await this.sendMainMenu(instance, to, customer);
     await this.sendOrderLinks(instance, to);
-
-    // Convite de opt-in só se o cliente ainda não respondeu sim/não.
-    if (customer.opt_in_updated_at == null) {
-      await this.sendText(
-        instance, to,
-        `Quer receber nossas *ofertas e cupons* por aqui? Responda *SIM* ou *NÃO*. 💌`,
-      );
-    }
   }
 
   private async sendFeatured(instance: string, to: string): Promise<void> {
@@ -149,7 +172,7 @@ export class WhatsAppBotService {
   private async sendFaqMenu(instance: string, to: string): Promise<void> {
     const text =
       `❓ *Dúvidas Frequentes*\n\n` +
-      `Horários: Ter a Dom, 8h–19h\n` +
+      `Horários: Seg a Sáb, 8h–19h\n` +
       `Localização, estacionamento, frete, dietas especiais, pagamentos e encomendas — responda aqui que ajudamos.`;
     await this.sendText(instance, to, text);
   }
