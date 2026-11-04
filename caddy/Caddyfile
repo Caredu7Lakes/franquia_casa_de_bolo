@@ -1,14 +1,14 @@
-# Reverse proxy com HTTPS automático (Let's Encrypt) + SPA do painel.
-# DOMAIN e ACME_EMAIL vêm do ambiente (docker-compose → .env).
+﻿# Reverse proxy com HTTPS automÃ¡tico (Let's Encrypt) + SPA do painel.
+# DOMAIN e ACME_EMAIL vÃªm do ambiente (docker-compose â†’ .env).
 #
-# O Caddy obtém e renova o certificado sozinho, desde que:
-#   - DOMAIN tenha um registro DNS A apontando para o IP público da VM;
+# O Caddy obtÃ©m e renova o certificado sozinho, desde que:
+#   - DOMAIN tenha um registro DNS A apontando para o IP pÃºblico da VM;
 #   - as portas 80 e 443 estejam abertas (NSG do Azure + firewall da VM).
-# A porta 80 é usada no desafio ACME e redireciona para 443 automaticamente.
+# A porta 80 Ã© usada no desafio ACME e redireciona para 443 automaticamente.
 #
-# Rotas de API vão para o backend; o resto é servido como SPA (arquivos
-# estáticos do painel, com fallback para index.html). O painel usa HashRouter,
-# então as rotas de tela (#/produtos, #/clientes...) não colidem com a API.
+# Rotas de API vÃ£o para o backend; o resto Ã© servido como SPA (arquivos
+# estÃ¡ticos do painel, com fallback para index.html). O painel usa HashRouter,
+# entÃ£o as rotas de tela (#/produtos, #/clientes...) nÃ£o colidem com a API.
 
 {
 	email {$ACME_EMAIL}
@@ -17,13 +17,13 @@
 {$DOMAIN} {
 	encode gzip
 
-	# API → backend NestJS (JWT/HMAC validados internamente).
-	@api path /auth* /users* /products* /customers* /analytics* /marketing* /webhook* /ifood/*
+	# API â†’ backend NestJS (JWT/HMAC validados internamente).
+	@api path /auth* /users* /products* /customers* /analytics* /marketing* /webhook* /ifood/* /operational-notices*
 	handle @api {
 		reverse_proxy backend:3000
 	}
 
-	# Painel (SPA) — arquivos estáticos com fallback para index.html.
+	# Painel (SPA) â€” arquivos estÃ¡ticos com fallback para index.html.
 	handle {
 		root * /srv
 		try_files {path} /index.html
