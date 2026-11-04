@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+﻿import { useEffect, useState } from 'react';
 import { api, apiError } from '../api/client';
 import { formatCurrency, formatDate, menuLabel } from '../lib/constants';
 
@@ -56,7 +56,7 @@ export default function Customers() {
         <h1 className="text-2xl font-bold text-slate-800">Clientes</h1>
         <label className="flex items-center gap-2 text-sm text-slate-600">
           <input type="checkbox" checked={optInOnly} onChange={(e) => setOptInOnly(e.target.checked)} />
-          Só com opt-in
+          SÃ³ com opt-in
         </label>
       </div>
 
@@ -65,7 +65,7 @@ export default function Customers() {
       )}
 
       {loading ? (
-        <p className="text-slate-500">Carregando…</p>
+        <p className="text-slate-500">Carregandoâ€¦</p>
       ) : rows.length === 0 ? (
         <p className="text-slate-500">Nenhum cliente encontrado.</p>
       ) : (
@@ -77,7 +77,7 @@ export default function Customers() {
                 <th className="px-4 py-3 font-medium">Telefone</th>
                 <th className="px-4 py-3 font-medium">Opt-in</th>
                 <th className="px-4 py-3 text-right font-medium">Pedidos</th>
-                <th className="px-4 py-3 text-right font-medium">Ticket médio</th>
+                <th className="px-4 py-3 text-right font-medium">Ticket mÃ©dio</th>
                 <th className="px-4 py-3"></th>
               </tr>
             </thead>
@@ -88,7 +88,7 @@ export default function Customers() {
                   <td className="px-4 py-3 text-slate-500">{c.phone_number}</td>
                   <td className="px-4 py-3">
                     <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${c.opt_in_promotions ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'}`}>
-                      {c.opt_in_promotions ? 'Sim' : 'Não'}
+                      {c.opt_in_promotions ? 'Sim' : 'NÃ£o'}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-right text-slate-600">{c.orders_count ?? 0}</td>
@@ -161,21 +161,21 @@ function CustomerDrawer({ id, onClose, onSaved }: { id: string; onClose: () => v
         )}
 
         {!c ? (
-          <p className="text-slate-500">Carregando…</p>
+          <p className="text-slate-500">Carregandoâ€¦</p>
         ) : (
           <>
             <dl className="mb-6 space-y-1 text-sm">
               <Row label="Nome" value={c.name} />
               <Row label="Telefone" value={c.phone_number} />
-              <Row label="E-mail" value={c.email || '—'} />
+              <Row label="E-mail" value={c.email || 'â€”'} />
               <Row label="Pedidos" value={String(c.orders_count ?? 0)} />
               <Row label="Total gasto" value={formatCurrency(c.total_spent)} />
-              <Row label="Último pedido" value={formatDate(c.last_order_at)} />
-              <Row label="Opt-in" value={c.opt_in_promotions ? 'Sim' : 'Não'} />
+              <Row label="Ãšltimo pedido" value={formatDate(c.last_order_at)} />
+              <Row label="Opt-in" value={c.opt_in_promotions ? 'Sim' : 'NÃ£o'} />
             </dl>
 
             <div className="mb-3">
-              <label className="label">Tags (separadas por vírgula)</label>
+              <label className="label">Tags (separadas por vÃ­rgula)</label>
               <input className="input" value={tags} onChange={(e) => setTags(e.target.value)} />
             </div>
             <div className="mb-3">
@@ -183,17 +183,17 @@ function CustomerDrawer({ id, onClose, onSaved }: { id: string; onClose: () => v
               <textarea className="input" rows={3} value={notes} onChange={(e) => setNotes(e.target.value)} />
             </div>
             <div className="mb-5">
-              <label className="label">NPS (0–10)</label>
+              <label className="label">NPS (0â€“10)</label>
               <input className="input" type="number" min="0" max="10" value={nps} onChange={(e) => setNps(e.target.value)} />
             </div>
 
             <button className="btn-primary w-full" onClick={save} disabled={saving}>
-              {saving ? 'Salvando…' : 'Salvar alterações'}
+              {saving ? 'Salvandoâ€¦' : 'Salvar alteraÃ§Ãµes'}
             </button>
 
             {c.interactions && c.interactions.length > 0 && (
               <div className="mt-6">
-                <h3 className="mb-2 font-semibold text-slate-700">Últimas interações</h3>
+                <h3 className="mb-2 font-semibold text-slate-700">Ãšltimas interaÃ§Ãµes</h3>
                 <ul className="space-y-2 text-sm">
                   {c.interactions.slice(0, 10).map((i) => (
                     <li key={i.id} className="rounded-lg bg-slate-50 px-3 py-2">
@@ -201,7 +201,7 @@ function CustomerDrawer({ id, onClose, onSaved }: { id: string; onClose: () => v
                         <span className="font-medium text-slate-700">{menuLabel(i.menuOption)}</span>
                         <span className="text-xs text-slate-400">{formatDate(i.created_at)}</span>
                       </div>
-                      {i.userMessage && <div className="text-slate-500">“{i.userMessage}”</div>}
+                      {i.userMessage && <div className="text-slate-500">â€œ{i.userMessage}â€</div>}
                     </li>
                   ))}
                 </ul>
