@@ -12,6 +12,12 @@ services:
       - pgdata:/var/lib/postgresql/data
       - ./init-db.sh:/docker-entrypoint-initdb.d/init-db.sh
     # Não expomos 5432 para fora da VM: só a rede interna usa.
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U casadobolo_user -d casadobolo_db"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   redis:
     image: redis:7-alpine
@@ -19,14 +25,22 @@ services:
     restart: always
     volumes:
       - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   evolution_api:
     image: evoapicloud/evolution-api:v2.3.7
     container_name: casadobolo_evolution
     restart: always
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     ports:
       - '127.0.0.1:8080:8080'  # so localhost; QR via tunel SSH
     environment:
@@ -43,15 +57,25 @@ services:
       - LOG_LEVEL=ERROR
     volumes:
       - evolution_instances:/evolution/instances
+    healthcheck:
+      # A Evolution expõe a raiz da API; 200 confirma que está servindo.
+      test: ["CMD-SHELL", "wget -q -O- http://localhost:8080/ >/dev/null 2>&1 || exit 1"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
 
   backend:
     build: .
     container_name: casadobolo_backend
     restart: always
     depends_on:
-      - postgres
-      - redis
-      - evolution_api
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      evolution_api:
+        condition: service_started
     ports:
       # Exposto só no host (localhost) — o acesso público é via Caddy (HTTPS).
       - '127.0.0.1:3000:3000'
@@ -76,6 +100,13 @@ services:
       # Mesmo segredo usado pelo relay para assinar os webhooks.
       - WEBHOOK_HMAC_SECRET=${WEBHOOK_HMAC_SECRET}
       - WEBHOOK_HMAC_HEADER=x-signature-256
+    healthcheck:
+      # Liveness do próprio backend (NestJS /health). node puro, sem dep extra.
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000/health',r=>process.exit(r.statusCode===200?0:1)).on('error',()=>process.exit(1))"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 40s
 
   # Relay de assinatura: a Evolution não assina os webhooks. Ela aponta para
   # http://webhook_relay:3001/webhook; o relay calcula o HMAC do corpo e repassa
@@ -85,12 +116,20 @@ services:
     container_name: casadobolo_relay
     restart: always
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     environment:
       - PORT=3001
       - UPSTREAM_URL=http://backend:3000
       - WEBHOOK_HMAC_SECRET=${WEBHOOK_HMAC_SECRET}
       - WEBHOOK_HMAC_HEADER=x-signature-256
+    healthcheck:
+      # O relay não tem rota de health; confirmamos que a porta 3001 aceita conexão.
+      test: ["CMD", "node", "-e", "require('net').connect(3001,'127.0.0.1').on('connect',()=>process.exit(0)).on('error',()=>process.exit(1))"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
 
   # Reverse proxy público (HTTPS automático) + SPA do painel. Único serviço com
   # portas públicas (80/443). Builda o frontend e serve os estáticos, termina o
@@ -102,7 +141,8 @@ services:
     container_name: casadobolo_caddy
     restart: always
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     ports:
       - '80:80'
       - '443:443'
@@ -112,6 +152,13 @@ services:
     volumes:
       - caddy_data:/data
       - caddy_config:/config
+    healthcheck:
+      # Caddy responde na 80 (redireciona p/ 443); 2019 é o admin. Checa a 80.
+      test: ["CMD-SHELL", "wget -q -O- http://localhost:80/ >/dev/null 2>&1 || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
 
 volumes:
   pgdata:
