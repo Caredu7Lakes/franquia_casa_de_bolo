@@ -1,4 +1,4 @@
-import { Controller, Get, Patch, Param, Query, Body, UseGuards } from '@nestjs/common';
+﻿import { Controller, Get, Post, Patch, Param, Query, Body, UseGuards } from '@nestjs/common';
 import { CustomersService } from '../services/customers.service';
 import { JwtAuthGuard } from '../../auth/guards/jwt-auth.guard';
 
@@ -10,6 +10,16 @@ export class CustomersController {
   @Get()
   list(@Query('optIn') optIn?: string) {
     return this.customersService.findAllMasked(optIn === 'true');
+  }
+
+  @Get(':id/export')
+  exportData(@Param('id') id: string) {
+    return this.customersService.exportData(id);
+  }
+
+  @Post(':id/anonymize')
+  anonymize(@Param('id') id: string) {
+    return this.customersService.anonymize(id);
   }
 
   @Get(':id')

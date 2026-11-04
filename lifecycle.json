@@ -1,0 +1,9 @@
+{
+  "Rules": [{
+    "ID": "expira-backups-30d",
+    "Status": "Enabled",
+    "Filter": { "Prefix": "casadobolo_db/" },
+    "Expiration": { "Days": 30 },
+    "NoncurrentVersionExpiration": { "NoncurrentDays": 30 }
+  }]
+}

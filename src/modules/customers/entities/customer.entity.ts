@@ -1,4 +1,4 @@
-import {
+﻿import {
   Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, OneToMany, Index,
 } from 'typeorm';
 import { InteractionLog } from '../../whatsapp/entities/interaction-log.entity';
@@ -52,6 +52,10 @@ export class Customer {
 
   @Column({ type: 'timestamp with time zone', nullable: true })
   last_order_at!: Date;
+
+  // LGPD (art. 18, VI): preenchido quando o titular foi anonimizado — PII removida.
+  @Column({ type: 'timestamp with time zone', nullable: true })
+  anonymized_at!: Date;
 
   @CreateDateColumn({ type: 'timestamp with time zone' })
   created_at!: Date;
