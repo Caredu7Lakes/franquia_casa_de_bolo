@@ -24,6 +24,8 @@ const CATEGORY_MENU: { key: string; category: ProductCategory; label: string }[]
 const IFOOD_URL =
   'https://www.ifood.com.br/delivery/sao-paulo-sp/casa-de-bolos-sao-lucas-parque-sao-lucas/b9189dac-ede3-4050-ba41-eb3e7954d790';
 
+const NOVENTA_E_NOVE_URL = 'https://oia.99app.com/dlp9/6xt0d5?share_media=WHATSAPP';
+
 @Injectable()
 export class WhatsAppBotService {
   private readonly logger = new Logger(WhatsAppBotService.name);
@@ -167,7 +169,7 @@ export class WhatsAppBotService {
       instance, to,
       '🛍️ *Fazer Pedido*\n\nPeça direto pelos nossos parceiros:\n\n' +
         `🔴 *iFood:*\n${IFOOD_URL}\n\n` +
-        '🟡 *99Food:*\n(link em breve)',
+        `🟡 *99Food:*\n${NOVENTA_E_NOVE_URL}`,
     );
   }
 
