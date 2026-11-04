@@ -1,17 +1,19 @@
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+﻿import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import { clearToken, getTokenPayload } from '../auth/auth';
 
-const baseNav = [
-  { to: '/', label: 'Dashboard', end: true, icon: '📊' },
-  { to: '/produtos', label: 'Produtos', icon: '🍰' },
-  { to: '/clientes', label: 'Clientes', icon: '👥' },
-  { to: '/marketing', label: 'Marketing', icon: '📣' },
+type NavItem = { to: string; label: string; icon: string; end?: boolean };
+
+const baseNav: NavItem[] = [
+  { to: '/', label: 'Dashboard', end: true, icon: 'ðŸ“Š' },
+  { to: '/produtos', label: 'Produtos', icon: 'ðŸ°' },
+  { to: '/clientes', label: 'Clientes', icon: 'ðŸ‘¥' },
+  { to: '/marketing', label: 'Marketing', icon: 'ðŸ“£' },
 ];
 
-// Itens só do OWNER.
-const ownerNav = [
-  { to: '/avisos', label: 'Avisos', icon: '📢' },
-  { to: '/usuarios', label: 'Usuários', icon: '🔑' },
+// Itens sÃ³ do OWNER.
+const ownerNav: NavItem[] = [
+  { to: '/avisos', label: 'Avisos', icon: 'ðŸ“¢' },
+  { to: '/usuarios', label: 'UsuÃ¡rios', icon: 'ðŸ”‘' },
 ];
 
 export default function Layout() {
@@ -28,7 +30,7 @@ export default function Layout() {
     <div className="min-h-screen md:flex">
       <aside className="flex shrink-0 flex-col gap-1 bg-brand-900 p-4 text-brand-50 md:w-60">
         <div className="mb-4 px-2">
-          <div className="text-lg font-bold">🍰 Casa do Bolo</div>
+          <div className="text-lg font-bold">ðŸ° Casa do Bolo</div>
           <div className="text-xs text-brand-200">Painel administrativo</div>
         </div>
         <nav className="flex flex-row gap-1 md:flex-col">
