@@ -6,6 +6,7 @@ import { Customer } from '../../customers/entities/customer.entity';
 import { InteractionLog } from '../entities/interaction-log.entity';
 import { ProductsService } from '../../products/products.service';
 import { Product, ProductCategory } from '../../products/entities/product.entity';
+import { OperationalNoticesService } from '../../operational-notices/operational-notices.service';
 
 const CATEGORY_MENU: { key: string; category: ProductCategory; label: string }[] = [
   { key: '1', category: ProductCategory.BOLOS, label: 'Bolos' },
@@ -33,6 +34,7 @@ export class WhatsAppBotService {
     @InjectRepository(Customer) private readonly customerRepo: Repository<Customer>,
     @InjectRepository(InteractionLog) private readonly logRepo: Repository<InteractionLog>,
     private readonly productsService: ProductsService,
+    private readonly noticesService: OperationalNoticesService,
   ) {}
 
   async processMessage(body: any): Promise<void> {
@@ -113,8 +115,18 @@ export class WhatsAppBotService {
     }
   }
 
-  // Primeiro contato (fluxo B): saudação + transparência (LGPD art. 9) e a
-  // pergunta de opt-in — e PARA. A vitrine só vai após o cliente responder.
+  // Avisos operacionais ativos (sábado só loja, após 17h sem reservas, etc.).
+  // Exibidos no primeiro contato e no menu do recorrente. Só entram se o OWNER
+  // os deixou ativos e a janela de dia/horário (fuso SP) bate com agora.
+  private async sendActiveNotices(instance: string, to: string): Promise<void> {
+    const notices = await this.noticesService.findActiveNow();
+    for (const notice of notices) {
+      await this.sendText(instance, to, `📣 ${notice.message}`);
+    }
+  }
+
+  // Primeiro contato (fluxo B): saudação + transparência (LGPD art. 9) + avisos
+  // ativos + a pergunta de opt-in — e PARA. A vitrine só vai após o cliente responder.
   private async sendWelcome(instance: string, to: string, customer: Customer): Promise<void> {
     const primeiroNome = (customer.name || 'tudo bem').split(' ')[0];
     await this.sendText(
@@ -123,6 +135,7 @@ export class WhatsAppBotService {
         `Por aqui você vê nosso cardápio e faz pedidos. Usamos seus dados só para te atender e, com seu aceite, enviar ofertas — ` +
         `você pode pedir para ver ou apagar seus dados quando quiser.`,
     );
+    await this.sendActiveNotices(instance, to);
     await this.sendOptInInvite(instance, to);
   }
 
@@ -159,6 +172,7 @@ export class WhatsAppBotService {
   }
 
   private async sendMainMenu(instance: string, to: string, customer?: Customer): Promise<void> {
+    await this.sendActiveNotices(instance, to);
     const linhas = CATEGORY_MENU.map((c) => `*${c.key}* — ${c.label}`).join('\n');
     const saudacao = customer?.name ? `🍰 *Casa do Bolo* — oi, ${customer.name.split(' ')[0]}! 🍰` : `🍰 *Casa do Bolo* 🍰`;
     const text =

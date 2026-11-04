@@ -17,6 +17,7 @@ import { AnalyticsModule } from './modules/analytics/analytics.module';
 import { MarketingModule } from './modules/marketing/marketing.module';
 import { ProductsModule } from './modules/products/products.module';
 import { IfoodModule } from './modules/ifood/ifood.module';
+import { OperationalNoticesModule } from './modules/operational-notices/operational-notices.module';
 
 @Module({
   imports: [
@@ -59,6 +60,7 @@ import { IfoodModule } from './modules/ifood/ifood.module';
     MarketingModule,
     ProductsModule,
     IfoodModule,
+    OperationalNoticesModule,
   ],
 })
 export class AppModule {}

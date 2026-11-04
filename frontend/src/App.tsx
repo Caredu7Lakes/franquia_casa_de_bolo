@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard';
 import Products from './pages/Products';
 import Customers from './pages/Customers';
 import Marketing from './pages/Marketing';
+import Notices from './pages/Notices';
 import Users from './pages/Users';
 
 export default function App() {
@@ -18,6 +19,7 @@ export default function App() {
           <Route path="/produtos" element={<Products />} />
           <Route path="/clientes" element={<Customers />} />
           <Route path="/marketing" element={<Marketing />} />
+          <Route path="/avisos" element={<Notices />} />
           <Route path="/usuarios" element={<Users />} />
         </Route>
       </Route>

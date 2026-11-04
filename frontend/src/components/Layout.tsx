@@ -8,11 +8,16 @@ const baseNav = [
   { to: '/marketing', label: 'Marketing', icon: '📣' },
 ];
 
+// Itens só do OWNER.
+const ownerNav = [
+  { to: '/avisos', label: 'Avisos', icon: '📢' },
+  { to: '/usuarios', label: 'Usuários', icon: '🔑' },
+];
+
 export default function Layout() {
   const navigate = useNavigate();
   const role = getTokenPayload()?.role;
-  // Gestão de usuários só aparece para o OWNER.
-  const nav = role === 'OWNER' ? [...baseNav, { to: '/usuarios', label: 'Usuários', icon: '🔑' }] : baseNav;
+  const nav = role === 'OWNER' ? [...baseNav, ...ownerNav] : baseNav;
 
   function logout() {
     clearToken();

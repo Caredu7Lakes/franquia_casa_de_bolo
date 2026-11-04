@@ -15,6 +15,7 @@ type Mocked = {
   customerRepo: any;
   logRepo: any;
   productsService: any;
+  noticesService: any;
   customer: any;
 };
 
@@ -46,13 +47,17 @@ function makeService(existingCustomer: any = undefined): Mocked {
     findAvailableByCategory: jest.fn().mockResolvedValue([]),
     findFeatured: jest.fn().mockResolvedValue([]),
   };
+  const noticesService = {
+    findActiveNow: jest.fn().mockResolvedValue([]),
+  };
 
   const service = new WhatsAppBotService(
     customerRepo as any,
     logRepo as any,
     productsService as any,
+    noticesService as any,
   );
-  return { service, customerRepo, logRepo, productsService, customer };
+  return { service, customerRepo, logRepo, productsService, noticesService, customer };
 }
 
 function body(text: string, opts: { fromMe?: boolean; jid?: string } = {}) {
@@ -139,14 +144,24 @@ describe('WhatsAppBotService.processMessage', () => {
     expect(sent).toContain('ifood.com.br');
   });
 
-  it('texto não reconhecido cai no MAIN_MENU', async () => {
-    const { service, logRepo } = makeService();
+  it('texto não reconhecido cai no MAIN_MENU e consulta avisos ativos', async () => {
+    const { service, logRepo, noticesService } = makeService();
     await service.processMessage(body('qualquer coisa'));
 
     expect(logRepo.create).toHaveBeenCalledWith(
       expect.objectContaining({ menuOption: 'MAIN_MENU' }),
     );
+    expect(noticesService.findActiveNow).toHaveBeenCalled();
     expect(mockedAxios.post).toHaveBeenCalled();
+  });
+
+  it('exibe aviso operacional ativo antes do menu', async () => {
+    const { service, noticesService } = makeService();
+    noticesService.findActiveNow.mockResolvedValue([{ message: 'Hoje só na loja física.' }]);
+    await service.processMessage(body('qualquer coisa'));
+
+    const textos = mockedAxios.post.mock.calls.map((c: any) => c[1].text);
+    expect(textos.some((t: string) => t.includes('Hoje só na loja física.'))).toBe(true);
   });
 
   it('cria o cliente quando ele ainda não existe e envia boas-vindas (WELCOME)', async () => {
@@ -157,7 +172,6 @@ describe('WhatsAppBotService.processMessage', () => {
       expect.objectContaining({ phone_number: '5511999999999', name: 'Teste' }),
     );
     expect(customerRepo.save).toHaveBeenCalled();
-    // Fluxo B: primeiro contato registra WELCOME, não MAIN_MENU.
     expect(logRepo.create).toHaveBeenCalledWith(
       expect.objectContaining({ menuOption: 'WELCOME' }),
     );
@@ -169,12 +183,12 @@ describe('WhatsAppBotService.processMessage', () => {
       phone_number: '5511999999999',
       name: 'Teste',
       opt_in_promotions: false,
-      opt_in_updated_at: null, // nunca respondeu
+      opt_in_updated_at: null,
     };
     const { service, logRepo } = makeService(semOptIn);
-    logRepo.count.mockResolvedValue(0); // ainda não foi re-perguntado
+    logRepo.count.mockResolvedValue(0);
 
-    await service.processMessage(body('1')); // manda outra coisa, não sim/não
+    await service.processMessage(body('1'));
 
     expect(logRepo.create).toHaveBeenCalledWith(
       expect.objectContaining({ menuOption: 'OPTIN_REASK' }),
@@ -186,7 +200,6 @@ describe('WhatsAppBotService.processMessage', () => {
     mockedAxios.post.mockRejectedValueOnce(new Error('404 instance does not exist'));
 
     await expect(service.processMessage(body('P'))).resolves.toBeUndefined();
-    // Mesmo com a resposta falhando, a interação foi registrada antes.
     expect(logRepo.save).toHaveBeenCalled();
   });
 });

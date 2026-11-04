@@ -6,12 +6,14 @@ import { InteractionLog } from './entities/interaction-log.entity';
 import { Customer } from '../customers/entities/customer.entity';
 import { ProductsModule } from '../products/products.module';
 import { TenancyModule } from '../tenancy/tenancy.module';
+import { OperationalNoticesModule } from '../operational-notices/operational-notices.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([InteractionLog, Customer]),
     ProductsModule,
     TenancyModule, // fornece o TenantResolverService ao webhook.
+    OperationalNoticesModule, // avisos operacionais exibidos pelo bot.
   ],
   controllers: [WhatsAppWebhookController],
   providers: [WhatsAppBotService],
