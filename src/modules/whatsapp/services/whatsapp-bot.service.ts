@@ -10,7 +10,7 @@ import { BotSessionService, EncomendaDraft } from '../session/bot-session.servic
 
 const TZ = 'America/Sao_Paulo';
 
-// Parceiros de delivery (print 4). Keeta nao expoe link publico -> instrucao textual.
+// Parceiros de delivery exibidos ao cliente.
 const IFOOD_URL =
   'https://www.ifood.com.br/delivery/sao-paulo-sp/casa-de-bolos-sao-lucas-parque-sao-lucas/b9189dac-ede3-4050-ba41-eb3e7954d790';
 const NOVENTA_E_NOVE_URL = 'https://oia.99app.com/dlp9/6xt0d5?share_media=WHATSAPP';
@@ -66,8 +66,7 @@ const MSG = {
   encomendaIntro:
     `👩‍🍳 Vamos preparar algo especial para você!\n\n` +
     `Para solicitar sua encomenda, vou te perguntar alguns detalhes.\n` +
-    `Nossa equipe verificará a disponibilidade e confirmará seu pedido.\n\n` +
-    `💛 A reserva é confirmada após o pagamento de *50% de sinal via Pix*.`,
+    `💛 Nossa equipe verificará a disponibilidade e entrará em contato para confirmar seu pedido.`,
 
   // [4] Consultar bolos disponiveis.
   disponiveis:
@@ -76,7 +75,6 @@ const MSG = {
     `Para consultar os sabores disponíveis em tempo real, acesse nossos parceiros:\n\n` +
     `🛵 *iFood:*\n${IFOOD_URL}\n\n` +
     `🛵 *99Food:*\n${NOVENTA_E_NOVE_URL}\n\n` +
-    `🛵 *Keeta:* procure por *Casa de Bolos São Lucas*.\n\n` +
     `Você também pode visitar nossa loja e escolher pessoalmente entre as delícias disponíveis! 🏠`,
 
   // [5] Horarios.
@@ -92,7 +90,7 @@ const MSG = {
     `💛 Aos sábados, nossa loja fica ainda mais movimentada!\n\n` +
     `Para garantir um atendimento ágil e organizado, priorizamos os clientes que estão presencialmente na loja.\n\n` +
     `🕐 Nosso atendimento de encomendas pelo WhatsApp acontece até às *12h*.\n\n` +
-    `Após esse horário, você pode consultar os bolos disponíveis pelo iFood, 99Food ou Keeta.\n\n` +
+    `Após esse horário, você pode consultar os bolos disponíveis pelo iFood ou 99Food.\n\n` +
     `🙏 Agradecemos muito sua compreensão e preferência!`,
 
   // [8] Fora do horario de atendimento.
@@ -110,7 +108,7 @@ const MSG = {
     `💛 Sua mensagem é muito importante para nós!\n\n` +
     `Nossa equipe está atendendo outros clientes neste momento.\n` +
     `Assim que possível, retornaremos seu contato.\n\n` +
-    `Se deseja consultar os bolos disponíveis, você também pode acessar o iFood, 99Food ou Keeta.\n\n` +
+    `Se deseja consultar os bolos disponíveis, você também pode acessar o iFood ou 99Food.\n\n` +
     `🙏 Agradecemos sua paciência e compreensão!`,
 };
 
@@ -353,8 +351,7 @@ export class WhatsAppBotService {
             `📅 Data: ${this.isoToBr(draft.pickup_date!)}\n` +
             `🕐 Horário: ${draft.pickup_time}\n` +
             `👤 Nome: ${nome}\n\n` +
-            `💛 Nossa equipe vai *verificar a disponibilidade* e confirmar seu pedido.\n` +
-            `A reserva é confirmada após o pagamento de *50% de sinal via Pix*.\n\n` +
+            `💛 Nossa equipe vai *verificar a disponibilidade* e entrará em contato com você para confirmar seu pedido.\n\n` +
             `Agradecemos sua preferência!`,
         );
       }
