@@ -56,6 +56,12 @@ const MSG = {
     `*Importante:* a disponibilidade dos sabores pode variar ao longo do dia.\n` +
     `Para consultar os bolos disponíveis para entrega, acesse nossos aplicativos parceiros.`,
 
+  // Resposta a perguntas de valor/preço: aponta o cardápio e volta ao menu.
+  precoConsulta: () =>
+    `💰 Os valores de cada bolo estão no nosso cardápio!\n\n` +
+    (CATALOG_URL ? `📋 Confira os preços: ${CATALOG_URL}\n\n` : `📋 Consulte os preços no nosso cardápio (opção 1 do menu).\n\n`) +
+    `Qualquer dúvida, é só escolher uma opção abaixo. 🍰`,
+
   // [3] Encomenda — abertura (os campos sao coletados um a um a seguir).
   encomendaIntro:
     `👩‍🍳 Vamos preparar algo especial para você!\n\n` +
@@ -171,6 +177,15 @@ export class WhatsAppBotService {
     if (['menu', '0', 'cancelar', 'cancela', 'voltar'].includes(normalized)) {
       await this.session.clearDraft(instance, from);
       await this.logInteraction(customer, 'MENU', text);
+      return this.sendText(instance, from, MSG.menu);
+    }
+
+    // Pergunta de preço em qualquer ponto: aponta o cardápio e volta ao menu
+    // inicial (aborta encomenda em curso, se houver).
+    if (this.isPriceQuestion(normalized)) {
+      await this.session.clearDraft(instance, from);
+      await this.logInteraction(customer, 'PRECO_CONSULTA', text);
+      await this.sendText(instance, from, MSG.precoConsulta());
       return this.sendText(instance, from, MSG.menu);
     }
 
@@ -319,12 +334,13 @@ export class WhatsAppBotService {
         draft.pickup_time = this.fmtMin(minutes);
         draft.step = 'name';
         await this.session.setDraft(instance, from, draft);
-        return this.sendText(instance, from, '👤 Por fim, qual o *nome* para a encomenda?');
+        return this.sendText(instance, from, '👤 Por fim, qual o seu *nome completo* (nome e sobrenome)?');
       }
 
       case 'name': {
-        if (value.length < 2) {
-          return this.sendText(instance, from, 'Não entendi o nome. 👤 Digite o *nome* para a encomenda.');
+        const parts = value.split(/\s+/).filter(Boolean);
+        if (parts.length < 2 || value.replace(/\s+/g, '').length < 4) {
+          return this.sendText(instance, from, 'Preciso do seu *nome completo* (nome e sobrenome). 👤');
         }
         const nome = value.slice(0, 250);
         await this.saveEncomenda(customer, nome, draft);
@@ -477,6 +493,16 @@ export class WhatsAppBotService {
 
   private firstName(customer: Customer): string {
     return (customer.name || 'tudo bem').split(' ')[0];
+  }
+
+  /** Detecta pergunta sobre valor/preço (do bolo ou total). */
+  private isPriceQuestion(t: string): boolean {
+    if (t.includes('valor') || t.includes('preço') || t.includes('preco') ||
+        t.includes('preços') || t.includes('precos')) return true;
+    if (t.includes('custa') || t.includes('custo')) return true;
+    if (/\bquanto\s+(custa|fica|sai|é|eh|e)\b/.test(t)) return true;
+    if (/\bquanto\b/.test(t) && (t.includes('bolo') || t.includes('total'))) return true;
+    return false;
   }
 
   private async findOrCreateCustomer(phone: string, name: string): Promise<{ customer: Customer; isNew: boolean }> {
