@@ -1,4 +1,4 @@
-﻿import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { IsNull, Repository } from 'typeorm';
 import { Customer } from '../entities/customer.entity';
@@ -57,7 +57,15 @@ export class CustomersService {
       relations: ['interactions', 'orders'],
     });
     if (!c) throw new NotFoundException('Cliente não encontrado.');
-    return { exported_at: new Date().toISOString(), customer: c };
+
+    // Encomendas do WhatsApp (tabela nova com PII) tambem entram no pacote.
+    const encomendas = await this.customerRepo.manager.query(
+      `SELECT id, customer_name, flavor, pickup_date, pickup_time, status, created_at
+         FROM whatsapp_encomendas WHERE customer_id = $1 ORDER BY created_at DESC`,
+      [id],
+    );
+
+    return { exported_at: new Date().toISOString(), customer: c, encomendas };
   }
 
   /**
@@ -78,8 +86,14 @@ export class CustomersService {
     await m.query(`UPDATE interaction_logs SET "userMessage" = NULL WHERE customer_id = $1`, [id]);
     // 2. Pedidos: desvincula do titular; mantém total/canal/data p/ contabilidade.
     await m.query(`UPDATE orders SET customer_id = NULL WHERE customer_id = $1`, [id]);
+    // 3. Encomendas do WhatsApp: remove o nome (PII) e desvincula; mantém
+    //    sabor/data/status como registro operacional sem titular.
+    await m.query(
+      `UPDATE whatsapp_encomendas SET customer_name = NULL, customer_id = NULL WHERE customer_id = $1`,
+      [id],
+    );
 
-    // 3. Cadastro: remove PII. phone_number é NOT NULL + único/tenant -> placeholder.
+    // 4. Cadastro: remove PII. phone_number é NOT NULL + único/tenant -> placeholder.
     c.phone_number = `ANON-${id.replace(/-/g, '').slice(0, 24)}`;
     c.name = null as any;
     c.email = null as any;
